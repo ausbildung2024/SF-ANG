@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: auto-nachweise
+name: Compile Python Program to EXE
 
 on:
   push:
@@ -13,47 +13,31 @@ permissions:
   contents: read
 
 jobs:
-  build-windows:
-    runs-on: windows-2019
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.2
-      - name: Install Python
-        uses: actions/setup-python@v5.3.0
-        with:
-          python-version: '3.7'
-          architecture: 'x64'
-      - name: Install requirements
-        run: |
-          pip install -r requirements.txt
-      - name: Run PyInstaller
-        run: |
-          python -m PyInstaller qwiklab_badge_checker.spec
-      - uses: actions/upload-artifact@v4.4.3
-        with:
-          name: Windows_qwiklabs
-          path: dist/auto-nachweise.exe
+  build:
+    runs-on: windows-latest  # Use Windows runner
 
-      - name: create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          tag_name: ${{ github.event.head_commit.message }}
-          release_name: ${{ github.event.head_commit.message }}
-          overwrite: true
-          body: |
-            Test Release v1.0.0
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          python-version: '3.13'  # Adjust the Python version as needed
+
+      - name: Install PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Compile Python to EXE
+        run: |
+          pyinstaller --onefile --noconsole --add-data ".\src\Vorlagen\VorlageMonat.docx;." main.py  # Adjust the path to your Python script
+          ls -lh dist/  # Verify the EXE file is created in the dist folder
+
+      - name: Upload EXE as artifact
+        uses: actions/upload-artifact@v3
         with:
-          upload_url: ${{steps.create_release.outputs.upload_url}}
-          asset_path: dist/auto-nachweise.exe
-          asset_name: auto-nachweise.exe
-          asset_content_type: application/zip
+          name: python-program-exe
+          path: dist/main.exe  # Path to your compiled EXE file
+
