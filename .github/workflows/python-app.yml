@@ -1,16 +1,12 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
 name: Compile Python Program to EXE
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "master" ]
-
-permissions:
-  contents: read
+    branches:
+      - main
 
 jobs:
   build:
@@ -23,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13'  # Adjust the Python version as needed
+          python-version: '3.8'  # Adjust the Python version as needed
 
       - name: Install PyInstaller
         run: |
@@ -32,12 +28,11 @@ jobs:
 
       - name: Compile Python to EXE
         run: |
-          pyinstaller --onefile --noconsole --add-data ".\src\Vorlagen\VorlageMonat.docx;." main.py  # Adjust the path to your Python script
-          ls -lh dist/  # Verify the EXE file is created in the dist folder
+          pyinstaller --noconsole --onefile --add-data ".\src\Vorlagen\VorlageMonat.docx;." main.py # Adjust the path to your Python script
+          Get-ChildItem -Path dist\ -File  # List files in the dist folder
 
       - name: Upload EXE as artifact
         uses: actions/upload-artifact@v3
         with:
           name: python-program-exe
           path: dist/main.exe  # Path to your compiled EXE file
-
