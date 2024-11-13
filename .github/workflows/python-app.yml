@@ -17,9 +17,9 @@ jobs:
     runs-on: windows-2019
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4.2.2
       - name: Install Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5.3.0
         with:
           python-version: '3.7'
           architecture: 'x64'
@@ -29,7 +29,7 @@ jobs:
       - name: Run PyInstaller
         run: |
           python -m PyInstaller qwiklab_badge_checker.spec
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4.4.3
         with:
           name: Windows_qwiklabs
           path: dist/qwiklab_badge_checker.exe
