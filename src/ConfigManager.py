@@ -15,7 +15,7 @@ days = ["MONTAG", "DIENSTAG", "MITTWOCH", "DONNERSTAG", "FREITAG"]  # Liste der 
 # Standardwerte für die Konfiguration
 DEFAULTS = {
     'Settings': {
-        'name': 'Max Wiegel',  # Standardbenutzername
+        'name': 'Gustav Gustavson',  # Standardbenutzername
         'year': '1',  # Ausbildungsjahr des Nutzers
         'default_hours': '8',  # Standardarbeitsstunden pro Tag
         'input_csv': 'Vorlagen/data.csv',  # Pfad zur Eingabe-CSV-Datei
