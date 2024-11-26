@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import messagebox, filedialog
 
 from src.CSVLoader import CSVLoader  # Dienst zum Laden und Validieren von CSV-Daten aus einer CSV-Datei
-from src.ConfigManager import *  # Konfigurationsmanager zum Laden und Speichern von Anwendungseinstellungen
+from src.ConfigManagerOld import *  # Konfigurationsmanager zum Laden und Speichern von Anwendungseinstellungen
 from src.Logger import Logger  # Logger zur Protokollierung von Informationen und Fehlern
 from src.WeekDataProcessor import \
     WeekDataProcessor  # Dienst zur Verarbeitung der CSV-Daten und Aufbereitung für das Dokument
@@ -22,21 +22,25 @@ class App:
         # Lädt die Anwendungseinstellungen aus der Konfigurationsdatei
         self.settings = settings
         self.root = root  # Setzt das Hauptfenster für die GUI
-        self.root.title("Ausbildungsnachweis Generator")  # Setzt den Fenstertitel für die Anwendung
+        self.root.title(APP_NAME)  # Setzt den Fenstertitel für die Anwendung
 
         # Initialisiert den Logger und legt den Speicherort des Log-Verzeichnisses fest
         log_folder = self.settings.get('log_folder', './logs')
         self.logger = Logger(log_folder).get_logger()
 
         # Definiert die Standardpfade für CSV-Datei, Word-Vorlage und das Ausgabeverzeichnis
-        self.csv_path = Path.cwd() / 'data.csv'
+        self.csv_path = Path.cwd() / self.settings.get('input_csv')
+
+        icon_small = tk.PhotoImage(file= Path.cwd() / 'ressources/pictures/icon_16x.png')
+        icon_big = tk.PhotoImage(file= Path.cwd() / 'ressources/pictures/icon_32x.png')
+        self.root.iconphoto(False, icon_big, icon_small)
 
         # Prüft, ob die Anwendung über PyInstaller als `.exe` läuft, indem das `_MEIPASS` Attribut in `sys` gesucht wird.
-        # Wenn `_MEIPASS` vorhanden ist, wird der Pfad zu `VorlageMonat.docx` gesetzt (Pfad für exe). Andernfalls Standardpfad.
+        # Wenn `_MEIPASS` vorhanden ist, wird der Pfad zu `month.docx` gesetzt (Pfad für exe). Andernfalls Standardpfad.
         if hasattr(sys, '_MEIPASS'):
-            self.template_path = Path(sys._MEIPASS) / 'VorlageMonat.docx'
+            self.template_path = Path(sys._MEIPASS) / 'month.docx'
         else:
-            self.template_path = Path.cwd() / 'Vorlage.docx'
+            self.template_path = Path.cwd() / self.settings.get('template')
         # Setzt das Standard-Ausgabeverzeichnis auf das aktuelle Arbeitsverzeichnis
         self.output_folder = Path.cwd()
 

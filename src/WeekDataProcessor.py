@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 import pandas as pd
 
-from src.ConfigManager import *
+from src.ConfigManagerOld import *
 from src.WordTemplate import WordTemplate
 
 
