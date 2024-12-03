@@ -17,7 +17,8 @@ if __name__ == "__main__":
     Der Einstiegspunkt der Anwendung. Hier wird die Tkinter-GUI gestartet und die Hauptanwendung geladen.
     """
 
-    myappid = 'ausbildung24.generator.' + APP_NAME + APP_VERSION  # arbitrary string
+    #Setzen der AppID, um das Icon in windows richtig anzeigen zu lassen
+    myappid = 'ausbildung24.generator.' + APP_NAME + APP_VERSION
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     # Erstellt ein Tkinter-Hauptfenster, das als Container für die GUI-Elemente dient
