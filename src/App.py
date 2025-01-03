@@ -1,191 +1,195 @@
+import ctypes
+import os
 import sys
 import tkinter as tk
+from pathlib import Path
+
+from src.CSVLoader import CSVLoader
+from src.ConfigManager import ConfigManager
 from tkinter import messagebox, filedialog
 
-from src.CSVLoader import CSVLoader  # Dienst zum Laden und Validieren von CSV-Daten aus einer CSV-Datei
-from src.ConfigManagerOld import *  # Konfigurationsmanager zum Laden und Speichern von Anwendungseinstellungen
-from src.Logger import Logger  # Logger zur Protokollierung von Informationen und Fehlern
-from src.WeekDataProcessor import \
-    WeekDataProcessor  # Dienst zur Verarbeitung der CSV-Daten und Aufbereitung für das Dokument
-from src.WordTemplate import WordTemplate  # Dienst zum Laden und Bearbeiten der Word-Dokumentvorlage
+from src.Logger import Logger
+from src.WeekDataProcessor import WeekDataProcessor
+from src.WordTemplate import WordTemplate
 
 
-# Hauptklasse der Anwendung
 class App:
-    def __init__(self, root):
-        """
-        Initialisiert die Hauptanwendung, lädt die Einstellungen und erstellt alle GUI-Komponenten.
+    def __init__(self):
+        self.CM = ConfigManager() #Laden des Config Managers
 
-        Parameter:
-        - root: Das Hauptfenster (Tkinter root), das als Basis für die GUI-Komponenten dient.
-        """
-        # Lädt die Anwendungseinstellungen aus der Konfigurationsdatei
-        self.settings = settings
-        self.root = root  # Setzt das Hauptfenster für die GUI
-        self.root.title(APP_NAME)  # Setzt den Fenstertitel für die Anwendung
+        self.root = tk.Tk() # Setzen des Hauptfensters der UI
+        self.root.title(self.CM.get_app_name()) #Setzt den Titel der App
 
-        # Initialisiert den Logger und legt den Speicherort des Log-Verzeichnisses fest
-        log_folder = self.settings.get('log_folder', './logs')
-        self.logger = Logger(log_folder).get_logger()
+        self.logger = Logger(self.CM.get_log_path()).get_logger() # Erstellt einen logger
 
-        # Definiert die Standardpfade für CSV-Datei, Word-Vorlage und das Ausgabeverzeichnis
-        self.csv_path = Path.cwd() / self.settings.get('input_csv')
+        self.set_icon() # Setzt das Icon
 
-        icon_small = tk.PhotoImage(file= Path.cwd() / 'ressources/pictures/icon_16x.png')
-        icon_big = tk.PhotoImage(file= Path.cwd() / 'ressources/pictures/icon_32x.png')
+        # erstellen der Variablen welche dargestellt werden
+        self.name_var = tk.StringVar()
+        self.year_var = tk.StringVar()
+        self.hour_var = tk.StringVar()
+        self.csv_path = tk.StringVar()
+        self.output_path = tk.StringVar()
+        self.template_path = tk.StringVar()
+
+        self.generate_interface() # Generiert das UI
+
+    """
+    Generiert die eizelnen Elemente des UI's
+    """
+    def generate_interface(self):
+
+        # Generiert eingabefelder für die Einstellungen
+        self.label_entry_helper(0, self.CM.get_label('name'), self.name_var)
+        self.label_entry_helper(1, self.CM.get_label('year'), self.year_var)
+        self.label_entry_helper(2, self.CM.get_label('hour'), self.hour_var)
+
+        # Generiert Felder für das setzen der Pfade
+        self.file_selector_helper(3,self.CM.get_label('csv'), self.csv_path,self.get_csv_path )
+        self.file_selector_helper(4,self.CM.get_label('template'), self.template_path,self.get_template_path)
+        self.file_selector_helper(5,self.CM.get_label('output'), self.output_path,self.get_output_path)
+
+        # Generiert den Knopf der das Generieren bestätigt:
+        tk.Button(self.root, text=self.CM.get_label('generate'), command=self.generate_document).grid(row=6, column=0)
+
+        # Setzen der Standard Werte
+        self.name_var.set(self.CM.get_name())
+        self.year_var.set(self.CM.get_year())
+        self.hour_var.set(self.CM.get_default_hours())
+
+        self.csv_path.set(self.CM.get_csv_path())
+        self.template_path.set(self.CM.get_template_path())
+        self.output_path.set(self.CM.get_output_path())
+
+
+    """
+    Setzt das Icon für die Taskbar
+    """
+    def set_icon(self):
+        icon_small = tk.PhotoImage(file = self.CM.get_app_icon('small'))
+        icon_big = tk.PhotoImage(file = self.CM.get_app_icon('large'))
         self.root.iconphoto(False, icon_big, icon_small)
 
-        # Prüft, ob die Anwendung über PyInstaller als `.exe` läuft, indem das `_MEIPASS` Attribut in `sys` gesucht wird.
-        # Wenn `_MEIPASS` vorhanden ist, wird der Pfad zu `month.docx` gesetzt (Pfad für exe). Andernfalls Standardpfad.
-        if hasattr(sys, '_MEIPASS'):
-            self.template_path = Path(sys._MEIPASS) / 'month.docx'
+    """
+    Helfermethode zum generieren eines labels zusasmmen mit einem Eingabefeld
+    """
+    def label_entry_helper(self, row, label_text,textvariable, column = 0):
+        label = tk.Label(self.root, text = label_text)
+        entry = tk.Entry(self.root, textvariable = textvariable)
+
+        label.grid(row = row, column = column)
+        entry.grid(row = row, column = column + 1)
+
+
+    """
+    Öffnet ein Pop Up zum auswählen einer datei/ordner
+    """
+    def file_chooser(self, path, filetypes = None):
+        new_path = ""
+        path_str = path.get()
+
+        # Falls schon ein file z.B xxx/file.txt gewählt wurde soll dieser entfern werden, so dass nurnoch die Ordnerstruktur im Pfad steht
+        if path_str.find('.') !=-1:
+            path_str = Path(path.get()).parent.absolute()
+
+        # Wählen der richtigen methode wenn filetypes none ist können nur ordner gewählt werden
+        if filetypes is None:
+            new_path = filedialog.askopenfilename(initialdir = path_str)
         else:
-            self.template_path = Path.cwd() / self.settings.get('template')
-        # Setzt das Standard-Ausgabeverzeichnis auf das aktuelle Arbeitsverzeichnis
-        self.output_folder = Path.cwd()
+            new_path = filedialog.askopenfilename(filetypes=filetypes, initialdir=path_str)
 
-        # Erstellen der GUI-Komponenten, die der Benutzer im Fenster sehen kann
-        self.create_widgets()
+        # Falls ein Pfad ausgewählt wird, wird dieser gesetzt
+        if new_path != "":
+            path.set(new_path)
 
-    def create_widgets(self):
-        """
-        Baut die Benutzeroberfläche der Anwendung auf, einschließlich aller Labels, Buttons und Eingabefelder
-        für Datei- und Ordnerauswahl, sowie des Buttons zur Erstellung des Berichts.
-        """
-        # Label und Button zur Auswahl der CSV-Datei
-        tk.Label(self.root, text="CSV-Datei auswählen:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        tk.Button(self.root, text="Durchsuchen", command=self.select_csv).grid(row=0, column=1, padx=5, pady=5)
-        # Label zur Anzeige des aktuellen Pfads der ausgewählten CSV-Datei
-        self.csv_path_label = tk.Label(self.root, text=f"CSV Pfad: {self.csv_path}")
-        self.csv_path_label.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+    """
+    Methode zum offnen des CSV Pfad
+    """
+    def get_csv_path(self):
+        self.file_chooser(self.csv_path,self.CM.get_filetype('csv'))
 
-        # Label und Button zur Auswahl der Word-Vorlage
-        tk.Label(self.root, text="Word-Vorlage auswählen:").grid(row=1, column=0, padx=5, pady=5, sticky="w")
-        tk.Button(self.root, text="Durchsuchen", command=self.select_template).grid(row=1, column=1, padx=5, pady=5)
-        # Label zur Anzeige des aktuellen Pfads der ausgewählten Word-Vorlage
-        self.template_path_label = tk.Label(self.root, text=f"Vorlage Pfad: {self.template_path}")
-        self.template_path_label.grid(row=1, column=2, padx=5, pady=5, sticky="w")
+    """
+    Methode zum offnen des output Pfad
+    """
+    def get_output_path(self):
+        self.file_chooser(self.output_path)
 
-        # Label und Button zur Auswahl des Ausgabeordners
-        tk.Label(self.root, text="Ausgabeordner auswählen:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
-        tk.Button(self.root, text="Durchsuchen", command=self.select_output_folder).grid(row=2, column=1, padx=5,
-                                                                                         pady=5)
-        # Label zur Anzeige des aktuellen Pfads des ausgewählten Ausgabeordners
-        self.output_folder_label = tk.Label(self.root, text=f"Ausgabeordner: {self.output_folder}")
-        self.output_folder_label.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+    """
+    Methode zum offnen des template Pfad
+    """
+    def get_template_path(self):
+        self.file_chooser(self.template_path,self.CM.get_filetype('word'))
 
-        # Button zur Erstellung des Berichts, der die generate_report-Methode aufruft
-        tk.Button(self.root, text="Erstellen", command=self.generate_report).grid(row=3, column=0, columnspan=2, padx=5,
-                                                                                  pady=5)
+    """
+    Helfermethode zum generieren eines labels zusasmmen mit einem ausgabe Feld und einen Knopf
+    """
+    def file_selector_helper(self, row, label_text, textvariable, command, column = 0):
+        label = tk.Label(self.root, text=label_text)
+        label_path = tk.Label(self.root, textvariable=textvariable)
+        button = tk.Button(self.root, text=self.CM.get_label('select'), command=command)
 
-    def select_csv(self):
-        """
-        Öffnet einen Dateiauswahldialog für die CSV-Datei und aktualisiert den Pfad.
-        Zeigt den ausgewählten CSV-Pfad im entsprechenden Label an.
-        """
-        # Öffnet den Dialog zum Auswählen der CSV-Datei
-        path = filedialog.askopenfilename(filetypes=[("CSV-Dateien", "*.csv")], initialdir=Path.cwd())
-        if path:  # Wenn ein Pfad ausgewählt wurde, wird er aktualisiert
-            self.csv_path = Path(path)
-            self.logger.info(f"CSV-Datei ausgewählt: {self.csv_path}")  # Protokolliert die Auswahl der CSV-Datei
-            self.csv_path_label.config(
-                text=f"CSV Pfad: {self.csv_path}")  # Aktualisiert das Label zur Anzeige des neuen Pfads
+        label.grid(row=row, column=column)
+        label_path.grid(row=row, column=column + 1)
+        button.grid(row=row, column=column + 2)
 
-    def select_template(self):
-        """
-        Öffnet einen Dateiauswahldialog für die Word-Vorlage und aktualisiert den Pfad.
-        Zeigt den ausgewählten Vorlagenpfad im entsprechenden Label an.
-        """
-        # Öffnet den Dialog zum Auswählen der Word-Vorlage
-        path = filedialog.askopenfilename(filetypes=[("Word-Dokumente", "*.docx")], initialdir=Path.cwd())
-        if path:  # Wenn ein Pfad ausgewählt wurde, wird er aktualisiert
-            self.template_path = Path(path)
-            self.logger.info(f"Vorlage ausgewählt: {self.template_path}")  # Protokolliert die Auswahl der Word-Vorlage
-            self.template_path_label.config(
-                text=f"Vorlage Pfad: {self.template_path}")  # Aktualisiert das Label zur Anzeige des neuen Pfads
+    """
+    Lädt die CSV und die Vorlage um daraus ein Fertiges Dokument zu generieren
+    """
+    def generate_document(self):
+        self.update_config()
 
-    def select_output_folder(self):
-        """
-        Öffnet einen Ordnerauswahldialog für das Ausgabeverzeichnis und aktualisiert den Pfad.
-        Zeigt den ausgewählten Ordnerpfad im entsprechenden Label an.
-        """
-        # Öffnet den Dialog zum Auswählen des Ausgabeordners
-        path = filedialog.askdirectory(initialdir=Path.cwd())
-        if path:  # Wenn ein Pfad ausgewählt wurde, wird er aktualisiert
-            self.output_folder = Path(path)
-            self.logger.info(
-                f"Ausgabeordner ausgewählt: {self.output_folder}")  # Protokolliert die Auswahl des Ausgabeordners
-            self.output_folder_label.config(
-                text=f"Ausgabeordner: {self.output_folder}")  # Aktualisiert das Label zur Anzeige des neuen Pfads
+        template = self.load_template()
+        csv = self.load_csv()
 
-    def show_error(self, message):
-        """
-        Zeigt eine Fehlermeldung in einem Popup-Fenster an.
+        week_processor = WeekDataProcessor(self.logger, self.CM, template, csv)
+        week_processor.process_all_weeks()  # Verarbeitet alle Wochendaten aus der CSV und füllt die Vorlage
 
-        Parameter:
-        - message: Die anzuzeigende Fehlermeldung als Text.
-        """
-        # Zeigt das übergebene Fehlernachricht als Popup an
-        messagebox.showerror("Fehler", message)
+        try:
+            output_path = template.save_document(Path(self.output_path.get()))# Speichern des bearbeiteten Dokuments im festgelegten Ausgabeverzeichnis
+            self.show_success("Dokument erfolgreich erstellt.") # Zeigt eine Erfolgsmeldung an, wenn das Dokument erfolgreich erstellt wurde
+            os.startfile(output_path) # Öffnet das Dokument im Dateimanager (z. B. Explorer) für den Benutzer
+        except Exception as e:
+            self.logger.error(f"Fehler beim Speichern des Dokuments: {e}")# Falls ein Fehler beim Speichern des Dokuments auftritt, wird dieser im Log protokolliert
+            self.show_error("Fehler beim Speichern des Dokuments.")# Zeigt eine Fehlermeldung an, wenn beim Speichern des Dokuments ein Problem auftritt
 
-    def generate_report(self):
-        """
-        Startet die Berichtserstellung, indem sie die Pfadauswahl überprüft, die CSV-Daten lädt,
-        die Word-Vorlage bearbeitet, die Daten verarbeitet und das ausgefüllte Dokument speichert.
-        Zeigt nach erfolgreicher Erstellung oder bei Fehlern entsprechende Meldungen an.
 
-        Ablauf:
-        1. Überprüft, ob die erforderlichen Dateien und Ordner ausgewählt wurden.
-        2. Lädt die CSV-Daten aus der ausgewählten Datei.
-        3. Lädt die Word-Vorlage, in die die Daten eingefügt werden sollen.
-        4. Verarbeitet die CSV-Daten und füllt die Word-Vorlage mit den relevanten Informationen.
-        5. Speichert das Dokument und erstellt ein Backup.
-        6. Zeigt dem Benutzer eine Erfolgsmeldung oder eine Fehlermeldung an, je nachdem, ob der Prozess erfolgreich war.
-        """
-        # Überprüfen, ob alle erforderlichen Pfade (CSV, Vorlage und Ausgabeordner) korrekt gesetzt sind.
-        if not all([self.csv_path, self.template_path, self.output_folder]):
-            # Falls nicht alle Pfade gesetzt sind, wird eine Fehlermeldung angezeigt und der Vorgang abgebrochen.
-            self.show_error("Bitte wählen Sie alle erforderlichen Dateien und Ordner aus.")
-            return
-
-        # Aktualisieren der App-Einstellungen mit den für diesen Lauf ausgewählten Pfaden
-        # Diese Einstellungen werden genutzt, um den Pfad zu CSV, Vorlage und Ausgabeordner zu speichern.
-        self.settings['input_csv'] = self.csv_path
-        self.settings['template'] = self.template_path
-        self.settings['output_folder'] = self.output_folder
-        # Falls im Settings keine `output_backup` definiert ist, wird der Standardwert (Backup im Ausgabeordner) gesetzt.
-        self.settings['output_backup'] = self.settings.get('output_backup', self.output_folder / "backup")
-
-        # Initialisierung des CSVLoaders, um die CSV-Daten zu laden
-        csv_loader = CSVLoader(self.logger, self.settings['input_csv'])
+    """
+    Kädt die daten aus der csv datei (von Successfactor generiert)
+    """
+    def load_csv(self):
+        csv_loader = CSVLoader(self.logger, Path(self.csv_path.get()))
         csv_data = csv_loader.load()  # Laden der CSV-Daten aus der Datei
         if csv_data is None:  # Falls das Laden der CSV-Daten fehlschlägt, wird eine Fehlermeldung angezeigt
             self.show_error("Fehler beim Laden der CSV-Datei.")
             return
+        return csv_data
 
-        # Initialisierung des WordTemplate-Objekts, um die Word-Vorlage zu laden und zu bearbeiten
-        word_template = WordTemplate(self.logger, self.settings['template'])
+    """
+    Lädt die Template word Datei
+    """
+    def load_template(self):
+        word_template = WordTemplate(self.logger, Path(self.template_path.get()))
         if word_template.document is None:  # Falls das Laden der Word-Vorlage fehlschlägt, wird eine Fehlermeldung angezeigt
             self.show_error("Fehler beim Laden der Vorlage.")
             return
+        return word_template
 
-        # Verarbeiten der geladenen CSV-Daten mit der WeekDataProcessor-Klasse
-        # Diese Klasse übernimmt das Befüllen der Word-Vorlage mit den Daten aus der CSV
-        week_processor = WeekDataProcessor(self.logger, self.settings, word_template, csv_data)
-        week_processor.process_all_weeks()  # Verarbeitet alle Wochendaten aus der CSV und füllt die Vorlage
+    """
+    Zeigt ein Fehler Pop-Up Fenster an
+    """
+    def show_error(self, message):
+        messagebox.showerror("Es ist ein Fehler aufgetreten", message)
 
-        # Versuch, das ausgefüllte Dokument zu speichern
-        try:
-            # Speichern des bearbeiteten Dokuments im festgelegten Ausgabeverzeichnis
-            output_path = word_template.save_document(self.settings['output_folder'])
-            # Zusätzliches Backup des Dokuments im festgelegten Backup-Verzeichnis
-            word_template.save_document(self.settings['output_backup'])
-            # Zeigt eine Erfolgsmeldung an, wenn das Dokument erfolgreich erstellt wurde
-            messagebox.showinfo("Erfolg", "Dokument erfolgreich erstellt.")
-            # Öffnet das Dokument im Dateimanager (z. B. Explorer) für den Benutzer
-            os.startfile(output_path)
-        except Exception as e:
-            # Falls ein Fehler beim Speichern des Dokuments auftritt, wird dieser im Log protokolliert
-            self.logger.error(f"Fehler beim Speichern des Dokuments: {e}")
-            # Zeigt eine Fehlermeldung an, wenn beim Speichern des Dokuments ein Problem auftritt
-            self.show_error("Fehler beim Speichern des Dokuments.")
+    def show_success(self, message):
+        messagebox.showinfo("Erfolgreich", message)
+
+    """
+    Updated den config file mit den eingegebenen werten (name, jahr, standard stunden)
+    """
+    def update_config(self):
+        self.CM.set_name(self.name_var.get())
+        self.CM.set_year(self.year_var.get())
+        self.CM.set_default_hours(self.hour_var.get())
+
+
+

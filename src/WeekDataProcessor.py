@@ -3,14 +3,14 @@ from typing import List, Tuple
 
 import pandas as pd
 
-from src.ConfigManagerOld import *
+from src.ConfigManager import ConfigManager
 from src.WordTemplate import WordTemplate
 
 
 class WeekDataProcessor:
     """Organisiert die CSV-Daten nach Wochen und füllt die Vorlage mit entsprechenden Werten aus."""
 
-    def __init__(self, logger, settings, document: WordTemplate, data: pd.DataFrame):
+    def __init__(self, logger, CM : ConfigManager, document: WordTemplate, data: pd.DataFrame):
         """
         Initialisiert den WeekDataProcessor.
 
@@ -21,7 +21,7 @@ class WeekDataProcessor:
         - data: Pandas DataFrame, der die CSV-Daten enthält.
         """
         self.logger = logger
-        self.settings = settings
+        self.CM = CM
         self.document = document
         self.data = data
         self.weeks_data = self.initialize_weeks_data()
@@ -45,9 +45,12 @@ class WeekDataProcessor:
         Rückgabewert:
         - Ein String, der den Tätigkeitstyp beschreibt oder eine Standardnachricht bei unbekannten Tätigkeiten.
         """
-        return activitys.get(activity, activitys.get('NA', 'TAETIGKEIT_UNBEKANNT'))
+        if activity in self.CM.get_activitys():
+            return self.CM.get_activitys()[activity]
+        else:
+            return self.CM.get_activitys()['NA']
 
-    def initialize_weeks_data(self) -> Dict[int, List[Dict[str, Dict[str, str]]]]:
+    def initialize_weeks_data(self):
         """
         Initialisiert und organisiert die Daten nach Kalenderwochen, wobei jeder Tag mit zugehörigen Tätigkeitsbeschreibungen
         erfasst wird und fehlende Tage mit Platzhaltern ergänzt werden.
@@ -77,15 +80,15 @@ class WeekDataProcessor:
         # Ergänzt fehlende Tage (z.B. wenn in einer Woche kein Eintrag für jeden Tag vorhanden ist).
         for week, entries in weeks_data.items():
             existing_days = {tag for entry in entries for tag in entry.keys()}
-            missing_days = set(days) - existing_days
+            missing_days = set(self.CM.get_work_days()) - existing_days
             for day in missing_days:
                 # Fügt einen leeren Eintrag für den fehlenden Tag hinzu.
                 entries.append({day: {"Art": "", "Inhalt": ""}})
-                self.logger.warning(messages['errors']['missing_days'].format(day=day, week=week))
+                self.logger.warning(self.CM.get_error_messages()['missing_days'].format(day=day, week=week))
 
         return weeks_data
 
-    def process_week_placeholders(self, week: int, entries: List[Dict[str, Dict[str, str]]]):
+    def process_week_placeholders(self, week, entries):
         """
         Verarbeitet Platzhalter für die gesamte Woche und ersetzt sie in der Word-Vorlage.
 
@@ -96,8 +99,8 @@ class WeekDataProcessor:
         # Berechnet Start- und Enddatum für die Woche basierend auf dem Startdatum der CSV-Daten.
         start_date, end_date = self.calculate_week_range(self.data['Datum'][0], week - 1)
         general_placeholders = {
-            '{NAME}': self.settings.get('name', 'N/A'),
-            '{ABJ}': self.settings.get('year', 'N/A'),
+            '{NAME}': self.CM.get_name(),
+            '{ABJ}': self.CM.get_year(),
             f'{{DATUM_START{week}}}': start_date,
             f'{{DATUM_ENDE{week}}}': end_date
         }
@@ -108,12 +111,12 @@ class WeekDataProcessor:
                 for cell in row.cells:
                     # Ersetzt allgemeine Platzhalter (wie Name und Jahr).
                     self.document.replace_general_placeholders(cell, general_placeholders)
-                    for day in days:
+                    for day in self.CM.get_work_days():
                         # Ersetzt spezifische Platzhalter für jeden Tag der Woche.
                         day_data = next((entry.get(day, {}) for entry in entries if day in entry), {})
                         self.replace_placeholders_for_day(cell, day, week, day_data)
 
-    def replace_placeholders_for_day(self, cell, day: str, week: int, data: Dict[str, str]):
+    def replace_placeholders_for_day(self, cell, day, week, data):
         """
         Ersetzt spezifische Platzhalter für einen Tag in einer Woche innerhalb einer Zelle.
 
@@ -134,7 +137,7 @@ class WeekDataProcessor:
 
         # Ersetzt Platzhalter für Inhalt, Stunden und Art in der Zelle.
         self.document.replace_placeholders(cell, placeholder_content, content)
-        self.document.replace_placeholders(cell, placeholder_hours, self.settings['default_hours'])
+        self.document.replace_placeholders(cell, placeholder_hours, self.CM.get_default_hours())
         self.document.replace_placeholders(cell, placeholder_type, data.get('Art', ''))
 
     def format_content(self, content: str) -> str:

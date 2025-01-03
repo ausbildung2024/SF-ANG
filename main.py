@@ -1,8 +1,6 @@
 import ctypes
-import tkinter as tk  # Importiert das Tkinter-Modul für die GUI-Erstellung
-
-from src.App import App  # Importiert die App-Klasse aus dem src.App-Modul, die die Hauptanwendungslogik enthält
-from src.ConfigManagerOld import *
+from src.App import App
+from src.ConfigData import settings
 
 # pyinstaller.exe --noconsole --onefile --add-data ".\src\template\month.docx;." .\main.py
 # Diese Zeile ist ein Kommentar und stellt den Befehl dar, der verwendet wird, um das Python-Skript mit PyInstaller
@@ -16,18 +14,8 @@ if __name__ == "__main__":
     """
     Der Einstiegspunkt der Anwendung. Hier wird die Tkinter-GUI gestartet und die Hauptanwendung geladen.
     """
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(settings['app']['id'])
 
-    #Setzen der AppID, um das Icon in windows richtig anzeigen zu lassen
-    myappid = 'ausbildung24.generator.' + APP_NAME + APP_VERSION
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    app = App()
 
-    # Erstellt ein Tkinter-Hauptfenster, das als Container für die GUI-Elemente dient
-    root = tk.Tk()
-
-    # Initialisiert die App-Klasse und übergibt das Tkinter-Hauptfenster als Argument
-    # Die App-Klasse übernimmt dann die Erstellung und Verwaltung der gesamten Benutzeroberfläche
-    app = App(root)
-
-    # Startet die Tkinter-Ereignisschleife, die auf Benutzerinteraktionen wartet und die GUI anzeigt.
-    # Diese Schleife bleibt aktiv, solange das Fenster offen ist.
-    root.mainloop()
+    app.root.mainloop()
