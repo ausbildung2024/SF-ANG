@@ -1,6 +1,8 @@
 import ctypes
+
+from src import static
 from src.App import App
-from src.ConfigData import settings
+from src.ConfigManager import ConfigManager
 
 # pyinstaller.exe --noconsole --onefile --add-data ".\src\template\month.docx;." .\main.py
 # Diese Zeile ist ein Kommentar und stellt den Befehl dar, der verwendet wird, um das Python-Skript mit PyInstaller
@@ -14,8 +16,11 @@ if __name__ == "__main__":
     """
     Der Einstiegspunkt der Anwendung. Hier wird die Tkinter-GUI gestartet und die Hauptanwendung geladen.
     """
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(settings['app']['id'])
 
-    app = App()
+    configManager = ConfigManager()
+    logger = static.create_logger(configManager)
 
-    app.root.mainloop()
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(configManager.get_app_id()) #Setzt die App ID von dem Prozess
+
+    app = App(logger,configManager) #Erstellt die App
+    app.root.mainloop()#Loopt über die App

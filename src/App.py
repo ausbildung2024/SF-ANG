@@ -2,25 +2,26 @@ import ctypes
 import os
 import sys
 import tkinter as tk
+from logging import Logger
 from pathlib import Path
 
-from src.CSVLoader import CSVLoader
+from src import static
 from src.ConfigManager import ConfigManager
 from tkinter import messagebox, filedialog
 
-from src.Logger import Logger
+
 from src.WeekDataProcessor import WeekDataProcessor
 from src.WordTemplate import WordTemplate
 
 
 class App:
-    def __init__(self):
-        self.CM = ConfigManager() #Laden des Config Managers
+    def __init__(self, logger: Logger, configManager: ConfigManager):
+        self.CM = configManager
 
         self.root = tk.Tk() # Setzen des Hauptfensters der UI
         self.root.title(self.CM.get_app_name()) #Setzt den Titel der App
 
-        self.logger = Logger(self.CM.get_log_path()).get_logger() # Erstellt einen logger
+        self.logger = logger
 
         self.set_icon() # Setzt das Icon
 
@@ -88,11 +89,11 @@ class App:
         new_path = ""
         path_str = path.get()
 
-        # Falls schon ein file z.B xxx/file.txt gewählt wurde soll dieser entfern werden, so dass nurnoch die Ordnerstruktur im Pfad steht
+        # Falls schon ein file z.B xxx/file.txt gewählt wurde soll dieser entfern werden, so das nurnoch die Ordnerstruktur im Pfad steht
         if path_str.find('.') !=-1:
             path_str = Path(path.get()).parent.absolute()
 
-        # Wählen der richtigen methode wenn filetypes none ist können nur ordner gewählt werden
+        # Wählen der richtigen methode, wenn filetypes none ist können nur ordner gewählt werden
         if filetypes is None:
             new_path = filedialog.askopenfilename(initialdir = path_str)
         else:
@@ -112,7 +113,8 @@ class App:
     Methode zum offnen des output Pfad
     """
     def get_output_path(self):
-        self.file_chooser(self.output_path)
+        new_dir = filedialog.askdirectory(initialdir=self.output_path.get())
+        self.output_path.set(new_dir)
 
     """
     Methode zum offnen des template Pfad
@@ -145,19 +147,18 @@ class App:
         week_processor.process_all_weeks()  # Verarbeitet alle Wochendaten aus der CSV und füllt die Vorlage
 
         try:
-            output_path = template.save_document(Path(self.output_path.get()))# Speichern des bearbeiteten Dokuments im festgelegten Ausgabeverzeichnis
-            self.show_success("Dokument erfolgreich erstellt.") # Zeigt eine Erfolgsmeldung an, wenn das Dokument erfolgreich erstellt wurde
-            os.startfile(output_path) # Öffnet das Dokument im Dateimanager (z. B. Explorer) für den Benutzer
+            output_path = template.save_document(Path(self.output_path.get()))
+            self.show_success("Dokument erfolgreich erstellt.")
+            os.startfile(output_path)
         except Exception as e:
-            self.logger.error(f"Fehler beim Speichern des Dokuments: {e}")# Falls ein Fehler beim Speichern des Dokuments auftritt, wird dieser im Log protokolliert
-            self.show_error("Fehler beim Speichern des Dokuments.")# Zeigt eine Fehlermeldung an, wenn beim Speichern des Dokuments ein Problem auftritt
+            self.show_error(f"Fehler beim Speichern des Dokuments: {e}")
 
 
     """
     Kädt die daten aus der csv datei (von Successfactor generiert)
     """
     def load_csv(self):
-        csv_loader = CSVLoader(self.logger, Path(self.csv_path.get()))
+        csv_loader = static.load_csv(self.CM,self.logger, Path(self.csv_path.get()))
         csv_data = csv_loader.load()  # Laden der CSV-Daten aus der Datei
         if csv_data is None:  # Falls das Laden der CSV-Daten fehlschlägt, wird eine Fehlermeldung angezeigt
             self.show_error("Fehler beim Laden der CSV-Datei.")
@@ -178,18 +179,38 @@ class App:
     Zeigt ein Fehler Pop-Up Fenster an
     """
     def show_error(self, message):
-        messagebox.showerror("Es ist ein Fehler aufgetreten", message)
+        messagebox.showerror(self.CM.get_label('fehler'), message)
+        self.logger.error(message)
 
+    """
+    Zeigt ein erfolgs Pop-Up fenster an
+    """
     def show_success(self, message):
-        messagebox.showinfo("Erfolgreich", message)
+        messagebox.showinfo(self.CM.get_label('erfolg'), message)
+        self.logger.info(message)
 
     """
     Updated den config file mit den eingegebenen werten (name, jahr, standard stunden)
     """
     def update_config(self):
-        self.CM.set_name(self.name_var.get())
-        self.CM.set_year(self.year_var.get())
-        self.CM.set_default_hours(self.hour_var.get())
+        self.CM.set_name(self.get_name())
+        self.CM.set_year(self.get_year())
+        self.CM.set_default_hours(self.get_default_hours())
 
+    """
+    Getter für den namen
+    """
+    def get_name(self):
+        return self.name_var.get()
 
+    """
+    Getter für das Ausbildungsjahr
+    """
+    def get_year(self):
+        return self.year_var.get()
 
+    """
+    Getter für die Default Hours
+    """
+    def get_default_hours(self):
+        return self.hour_var.get()

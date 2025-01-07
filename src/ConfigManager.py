@@ -147,3 +147,6 @@ class ConfigManager:
         if filetype in self.get_filetypes():
             return self.get_filetypes()[filetype]
         return ''
+
+    def get_csv_columns(self):
+        return self.settings['csv_columns']

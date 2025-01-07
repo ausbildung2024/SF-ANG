@@ -1,16 +1,14 @@
 import os
 from pathlib import Path
 
-from src.ConfigManagerOld import APP_VERSION
-
 APP_NAME = 'SF-ANG'
-APP_VERSION = '02.01.25.A'
+APP_VERSION = '07.01.25.A1'
 
 APPDATA_PATH = Path(os.getenv('APPDATA', ''))  # Der Pfad des APPDATA-Ordners für systemweite Anwendungsdaten
 
 settings = {
     'work_days': ["MONTAG", "DIENSTAG", "MITTWOCH", "DONNERSTAG", "FREITAG"],  # Liste der Arbeitstage
-
+    'csv_columns' : {'Datum', 'Tag', 'Tätigkeitsbeschreibung', 'Beschreibung'},
     'activitys': {
         'NE-NICHT-PRÄMIENWIRKSAME AUSBILDUNG': 'Betrieb',  # Aktivitätstypen
         'AS-KRANKHEIT': 'Krank',
@@ -30,7 +28,8 @@ settings = {
             'missing_columns': "Die CSV-Datei fehlt die folgenden Spalten: {columns}",
             'generic_error': "Ein Fehler ist aufgetreten: {message}",
             'save_error': "Das Dokument konnte nicht gespeichert werden. Fehler: {message}",
-            'missing_days': "Tag {day} in Woche {week} ist nicht vorhanden, bitte manuell überprüfen!"
+            'missing_days': "Tag {day} in Woche {week} ist nicht vorhanden, bitte manuell überprüfen!",
+            'laden_vorlage': "Fehler beim laden der Vorlage",
         },
         'success': {
             'file_loaded': "Die Datei '{file}' wurde erfolgreich geladen.",
@@ -76,7 +75,9 @@ settings = {
         'template' : 'Pfad Vorlage:',
         'output' : 'Ausgabe Ordner:',
         'generate' : 'Generieren',
-        'select' : 'Auswahl'
+        'select' : 'Auswahl',
+        'erfolg' : 'Erfolgreich',
+        'fehler' : 'Fehler'
     },
 
     'filetypes':{
