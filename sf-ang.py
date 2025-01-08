@@ -4,7 +4,7 @@ from src import static
 from src.App import App
 from src.ConfigManager import ConfigManager
 
-# pyinstaller.exe --noconsole --onefile --add-data ".\src\template\month.docx;." .\main.py
+# pyinstaller.exe --noconsole --onefile --add-data ".\src\template\month.docx;." .\sf-ang.py
 # Diese Zeile ist ein Kommentar und stellt den Befehl dar, der verwendet wird, um das Python-Skript mit PyInstaller
 # in eine eigenständige EXE-Datei zu kompilieren. Der Befehl gibt an:
 # - --noconsole: Verhindert das Öffnen eines Konsolenfensters, wenn die EXE ausgeführt wird
