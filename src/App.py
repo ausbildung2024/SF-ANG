@@ -158,8 +158,7 @@ class App:
     Kädt die daten aus der csv datei (von Successfactor generiert)
     """
     def load_csv(self):
-        csv_loader = static.load_csv(self.CM,self.logger, Path(self.csv_path.get()))
-        csv_data = csv_loader.load()  # Laden der CSV-Daten aus der Datei
+        csv_data = static.load_csv(self.CM,self.logger, Path(self.csv_path.get()))
         if csv_data is None:  # Falls das Laden der CSV-Daten fehlschlägt, wird eine Fehlermeldung angezeigt
             self.show_error("Fehler beim Laden der CSV-Datei.")
             return
