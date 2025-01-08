@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 APP_NAME = 'SF-ANG'
-APP_VERSION = '07.01.25.A1'
+APP_VERSION = '08.01.25.A1'
 
 APPDATA_PATH = Path(os.getenv('APPDATA', ''))  # Der Pfad des APPDATA-Ordners für systemweite Anwendungsdaten
 
@@ -58,7 +58,7 @@ settings = {
 
     'paths': {
         'input_csv': Path.home() / 'Downloads',  # Pfad zur Eingabe-CSV-Datei
-        'template': Path.cwd() / 'res/template',  # Pfad zur Dokumentvorlage
+        'template': Path.cwd() / 'res/template/month.docx',  # Pfad zur Dokumentvorlage
         'config': Path(str(APPDATA_PATH / APP_NAME / 'config.ini')),  # Pfad zur Konfig
         'output':  Path.home() / 'Documents',  # Ordner für generierte Dokumente
         'output_backup': Path(str(APPDATA_PATH / APP_NAME / 'dokumente')),  # Pfad zum Backup-Ordner

@@ -86,7 +86,6 @@ class App:
     Öffnet ein Pop Up zum auswählen einer datei/ordner
     """
     def file_chooser(self, path, filetypes = None):
-        new_path = ""
         path_str = path.get()
 
         # Falls schon ein file z.B xxx/file.txt gewählt wurde soll dieser entfern werden, so das nurnoch die Ordnerstruktur im Pfad steht

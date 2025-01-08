@@ -172,9 +172,23 @@ class WeekDataProcessor:
     - Ein Tuple (Startdatum, Enddatum) im Format 'dd.mm.yyyy'.
     """
     def calculate_week_range(self, start_date: str, week_offset: int) -> Tuple[str, str]:
-        start = datetime.strptime(start_date, "%d.%m.%Y") + timedelta(weeks=week_offset)
-        end = start + timedelta(days=4)  # Angenommen: Woche endet nach 5 Tagen (Montag bis Freitag).
-        return start.strftime("%d.%m.%Y"), end.strftime("%d.%m.%Y")
+        # Startdatum der Woche berechnen.
+        start = datetime.strptime(start_date, "%d.%m.%Y")
+
+        # Berechnet den Wochentag des Startdatums.
+        # Wenn der Starttag ein Montag ist (Wochentag = 0), bleibt der Starttag unverändert.
+        days_to_monday = (start.weekday() - 0) % 7  # 0 entspricht Montag
+        start_of_week = start - timedelta(days=days_to_monday)
+
+        # Berechnet das Startdatum der Woche unter Berücksichtigung der Wochenverschiebung
+        start_of_week = start_of_week + timedelta(weeks=week_offset)
+
+        # Berechnet den Freitag der Woche (5 entspricht Freitag)
+        days_to_friday = (4 - start_of_week.weekday()) % 7  # 4 entspricht Freitag
+        end_of_week = start_of_week + timedelta(days=days_to_friday)
+
+        # Gibt die Daten im Format 'dd.mm.yyyy' zurück.
+        return start_of_week.strftime("%d.%m.%Y"), end_of_week.strftime("%d.%m.%Y")
 
     """
     Verarbeitet alle Wochen und füllt Platzhalter in der Vorlage für jede Woche aus.
