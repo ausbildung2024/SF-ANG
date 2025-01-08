@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 APP_NAME = 'SF-ANG'
-APP_VERSION = '08.01.25.A1'
+APP_VERSION = '08.01.25.A2'
 
 APPDATA_PATH = Path(os.getenv('APPDATA', ''))  # Der Pfad des APPDATA-Ordners für systemweite Anwendungsdaten
 
@@ -83,5 +83,8 @@ settings = {
     'filetypes':{
         'csv': [("CSV-Dateien", "*.csv")],
         'word':[("Word-Dokumente", "*.docx")]
+    },
+    'links':{
+        'time_portal': 'https://portal.nagarro-es.com/ess/shells/abap/FioriLaunchpad.html#TIMEREPORTING_NAG-create?OnBehalfOf'
     }
 }

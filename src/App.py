@@ -1,7 +1,6 @@
-import ctypes
 import os
-import sys
 import tkinter as tk
+import webbrowser
 from logging import Logger
 from pathlib import Path
 
@@ -51,7 +50,9 @@ class App:
         self.file_selector_helper(5,self.CM.get_label('output'), self.output_path,self.get_output_path)
 
         # Generiert den Knopf der das Generieren bestätigt:
-        tk.Button(self.root, text=self.CM.get_label('generate'), command=self.generate_document).grid(row=6, column=0)
+        tk.Button(self.root, text=self.CM.get_label('generate'), command=self.generate_document).grid(row=6, column=2)
+        tk.Button(self.root,text='Portal',command=self.open_portal).grid(row=6,column=0)
+
 
         # Setzen der Standard Werte
         self.name_var.set(self.CM.get_name())
@@ -152,6 +153,9 @@ class App:
         except Exception as e:
             self.show_error(f"Fehler beim Speichern des Dokuments: {e}")
 
+
+    def open_portal(self):
+        webbrowser.open(self.CM.get_portal_link(), new= 0, autoraise=True)
 
     """
     Kädt die daten aus der csv datei (von Successfactor generiert)

@@ -118,16 +118,16 @@ class ConfigManager:
         self.settings['personal']['default_hours'] = default_hours
 
     def get_csv_path(self):
-        return self.get_paths()['input_csv']
+        return Path(self.get_paths()['input_csv']).as_posix()
 
     def get_template_path(self):
-        return self.get_paths()['template']
+        return Path(self.get_paths()['template']).as_posix()
 
     def get_output_path(self):
-        return self.get_paths()['output']
+        return Path(self.get_paths()['output']).as_posix()
 
     def get_log_path(self):
-        return self.get_paths()['log']
+        return Path(self.get_paths()['log']).as_posix()
 
     def get_app_id(self):
         return self.get_app()['id']
@@ -150,3 +150,6 @@ class ConfigManager:
 
     def get_csv_columns(self):
         return self.settings['csv_columns']
+
+    def get_portal_link(self):
+        return self.settings['links']['time_portal']
