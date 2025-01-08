@@ -5,9 +5,10 @@ from typing import Dict, Optional
 
 from docx import Document
 
-
+"""
+Lädt und manipuliert die Word-Dokument-Vorlage zur Erstellung von Berichten.
+"""
 class WordTemplate:
-    """Lädt und manipuliert die Word-Dokument-Vorlage zur Erstellung von Berichten."""
 
     """
     Initialisiert das WordTemplate-Objekt.

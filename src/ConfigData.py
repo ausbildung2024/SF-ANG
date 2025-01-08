@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 APP_NAME = 'SF-ANG'
-APP_VERSION = '08.01.25.A2'
+APP_VERSION = '08.01.25.A3'
 
 APPDATA_PATH = Path(os.getenv('APPDATA', ''))  # Der Pfad des APPDATA-Ordners für systemweite Anwendungsdaten
 
@@ -13,7 +13,7 @@ settings = {
         'NE-NICHT-PRÄMIENWIRKSAME AUSBILDUNG': 'Betrieb',  # Aktivitätstypen
         'AS-KRANKHEIT': 'Krank',
         'AH-URLAUB': 'Urlaub',
-        'NA': 'TAETIGKEIT_UNBEKANNT'
+        'NA': 'Tätigkeit unbekannt! '
     },
 
     'missing_day': {

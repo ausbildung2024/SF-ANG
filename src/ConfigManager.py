@@ -1,9 +1,5 @@
 import configparser
-import logging
-import os
 from pathlib import Path
-from sysconfig import get_paths
-from typing import Any, Dict, TypedDict
 from src.ConfigData import settings
 
 SEC = 'Settings'
