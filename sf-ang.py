@@ -1,16 +1,7 @@
 import ctypes
-
 from src import static
 from src.App import App
-from src.ConfigManager import ConfigManager
-
-# pyinstaller.exe --noconsole --onefile --add-data ".\src\template\month.docx;." .\sf-ang.py
-# Diese Zeile ist ein Kommentar und stellt den Befehl dar, der verwendet wird, um das Python-Skript mit PyInstaller
-# in eine eigenständige EXE-Datei zu kompilieren. Der Befehl gibt an:
-# - --noconsole: Verhindert das Öffnen eines Konsolenfensters, wenn die EXE ausgeführt wird
-# - --onefile: Erzeugt eine einzelne ausführbare Datei, die alle Abhängigkeiten enthält
-# - --add-data: Fügt zusätzliche Dateien (in diesem Fall die Word-Vorlage "month.docx") zur EXE hinzu
-# Der Befehl stellt sicher, dass die Vorlage in der erstellten EXE enthalten ist, auch wenn die Datei im Code referenziert wird.
+from src.SettingsHandler import ConfigManager
 
 if __name__ == "__main__":
     """

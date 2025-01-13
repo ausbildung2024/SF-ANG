@@ -8,7 +8,7 @@ APPDATA_PATH = Path(os.getenv('APPDATA', ''))  # Der Pfad des APPDATA-Ordners f�
 
 settings = {
     'work_days': ["MONTAG", "DIENSTAG", "MITTWOCH", "DONNERSTAG", "FREITAG"],  # Liste der Arbeitstage
-    'csv_columns' : {'Datum', 'Tag', 'Tätigkeitsbeschreibung', 'Beschreibung'},
+    'csv_columns': {'Datum', 'Tag', 'Tätigkeitsbeschreibung', 'Beschreibung'},
     'activitys': {
         'NE-NICHT-PRÄMIENWIRKSAME AUSBILDUNG': 'Betrieb',  # Aktivitätstypen
         'AS-KRANKHEIT': 'Krank',
@@ -48,19 +48,21 @@ settings = {
         'name': 'Gustav Gustavson',  # Standardbenutzername
         'year': '1',  # Ausbildungsjahr des Nutzers
         'default_hours': '8',  # Standardarbeitsstunden pro Tag
+        'theme': 'auto'
     },
 
     'app': {
         'name': APP_NAME,
         'version': APP_VERSION,
-        'id' : 'ausbildung2024.' + APP_NAME + 'V' +  APP_VERSION
+        'id': 'ausbildung2024.' + APP_NAME + 'V' + APP_VERSION
     },
 
     'paths': {
         'input_csv': Path.home() / 'Downloads',  # Pfad zur Eingabe-CSV-Datei
         'template': Path.cwd() / 'res/template/month.docx',  # Pfad zur Dokumentvorlage
         'config': Path(str(APPDATA_PATH / APP_NAME / 'config.ini')),  # Pfad zur Konfig
-        'output':  Path.home() / 'Documents',  # Ordner für generierte Dokumente
+        'output': Path.home() / 'Documents',  # Ordner für generierte Dokumente
+        'appdata': Path(str(APPDATA_PATH / APP_NAME)),
         'output_backup': Path(str(APPDATA_PATH / APP_NAME / 'dokumente')),  # Pfad zum Backup-Ordner
         'log': Path(str(APPDATA_PATH / APP_NAME / 'logs')),  # Pfad zum Log-Ordner
         'icon_large': Path.cwd() / 'res/pictures/icon_16x.png',
@@ -69,22 +71,23 @@ settings = {
 
     'labels': {
         'name': 'Name',
-        'year' : 'Ausbildungsjahr:',
-        'hour' : 'Standard Stunden',
-        'csv' : 'Pfad CSV:',
-        'template' : 'Pfad Vorlage:',
-        'output' : 'Ausgabe Ordner:',
-        'generate' : 'Generieren',
-        'select' : 'Auswahl',
-        'erfolg' : 'Erfolgreich',
-        'fehler' : 'Fehler'
+        'year': 'Ausbildungsjahr:',
+        'hour': 'Standard Stunden',
+        'csv': 'Pfad CSV:',
+        'template': 'Pfad Vorlage:',
+        'output': 'Ausgabe Ordner:',
+        'generate': 'Generieren',
+        'select': 'Auswahl',
+        'erfolg': 'Erfolgreich',
+        'fehler': 'Fehler'
     },
 
-    'filetypes':{
+    'filetypes': {
         'csv': [("CSV-Dateien", "*.csv")],
-        'word':[("Word-Dokumente", "*.docx")]
+        'word': [("Word-Dokumente", "*.docx")]
     },
-    'links':{
-        'time_portal': 'https://portal.nagarro-es.com/ess/shells/abap/FioriLaunchpad.html#TIMEREPORTING_NAG-create?OnBehalfOf'
+    'links': {
+        'time_portal': 'https://portal.nagarro-es.com/ess/shells/abap/FioriLaunchpad.html#TIMEREPORTING_NAG-create?OnBehalfOf',
+        'github': 'https://github.com/ausbildung2024/SF-ANG',
     }
 }

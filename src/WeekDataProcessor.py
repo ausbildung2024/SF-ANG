@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
+from turtledemo.penrose import start
 from typing import Tuple
 
 import pandas as pd
 
-from src.ConfigManager import ConfigManager
+from src.SettingsHandler import ConfigManager
 from src.WordTemplate import WordTemplate
 
 
@@ -19,11 +20,11 @@ class WeekDataProcessor:
     - document: Eine WordTemplate-Instanz, die das Word-Dokument repräsentiert.
     - data: Pandas DataFrame, der die CSV-Daten enthält.
     """
-    def __init__(self, logger, CM : ConfigManager, document: WordTemplate, data: pd.DataFrame):
+    def __init__(self, logger, CM : ConfigManager, document: WordTemplate, csv: pd.DataFrame):
         self.logger = logger
         self.CM = CM
         self.document = document
-        self.data = data
+        self.csv = csv
         self.weeks_data = self.initialize_weeks_data()
 
     """
@@ -62,10 +63,10 @@ class WeekDataProcessor:
     """
     def initialize_weeks_data(self):
         weeks_data = {}
-        start_week = self.get_week(self.data['Datum'].iloc[0])
+        start_week = self.get_week(self.csv['Datum'].iloc[0])
 
         # Iteriert durch jede Zeile des DataFrames und organisiert die Einträge nach relativen Wochen.
-        for _, row in self.data.iterrows():
+        for _, row in self.csv.iterrows():
             date = row['Datum']
             current_week = self.get_week(date)
             relative_week = current_week - start_week + 1
@@ -102,7 +103,7 @@ class WeekDataProcessor:
     """
     def process_week_placeholders(self, week, entries):
         # Berechnet Start- und Enddatum für die Woche basierend auf dem Startdatum der CSV-Daten.
-        start_date, end_date = self.calculate_week_range(self.data['Datum'][0], week - 1)
+        start_date, end_date = self.calculate_week_range(self.csv['Datum'][0], week - 1)
         general_placeholders = {
             '{NAME}': self.CM.get_name(),
             '{ABJ}': self.CM.get_year(),
