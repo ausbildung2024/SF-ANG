@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.SettingsHandler import ConfigManager
+from src.SettingManagement.SettingsHandler import ConfigManager
 
 """
 Erstellt einen Logger an dem richtigen Pfad

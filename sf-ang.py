@@ -1,7 +1,7 @@
 import ctypes
-from src import static
-from src.App import App
-from src.SettingsHandler import ConfigManager
+from src.Utils import static
+from src.Overlay.App import App
+from src.SettingManagement.SettingsHandler import ConfigManager
 
 if __name__ == "__main__":
     """

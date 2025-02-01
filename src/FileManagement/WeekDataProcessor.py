@@ -1,24 +1,15 @@
 from datetime import datetime, timedelta
-from turtledemo.penrose import start
 from typing import Tuple
 
 import pandas as pd
 
-from src.SettingsHandler import ConfigManager
-from src.WordTemplate import WordTemplate
+from src.SettingManagement.SettingsHandler import ConfigManager
+from src.FileManagement.WordTemplate import WordTemplate
 
 
 class WeekDataProcessor:
-    """Organisiert die CSV-Daten nach Wochen und füllt die Vorlage mit entsprechenden Werten aus."""
-
     """
     Initialisiert den WeekDataProcessor.
-
-    Parameter:
-    - logger: Logger-Objekt zum Protokollieren von Ereignissen und Fehlern.
-    - settings: Konfigurationseinstellungen für die Anwendung.
-    - document: Eine WordTemplate-Instanz, die das Word-Dokument repräsentiert.
-    - data: Pandas DataFrame, der die CSV-Daten enthält.
     """
     def __init__(self, logger, CM : ConfigManager, document: WordTemplate, csv: pd.DataFrame):
         self.logger = logger
@@ -197,3 +188,6 @@ class WeekDataProcessor:
     def process_all_weeks(self):
         for week, entries in self.weeks_data.items():
             self.process_week_placeholders(week, entries)
+
+    def process_all_empty_weeks(self,date):
+        pass

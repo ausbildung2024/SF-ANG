@@ -1,6 +1,6 @@
 import configparser
 from pathlib import Path
-from src.SettingsDict import settings
+from src.SettingManagement.SettingsDict import settings
 
 SETTINGS_SEC = 'SETTINGS'
 PERSONAL_SEC = 'PERSONAL'
@@ -32,9 +32,10 @@ class IniLoader:
                 pass
 
     def load_setting_section(self):
-        if self.config.has_section(SETTINGS_SEC):
-            if self.config.has_option(SETTINGS_SEC, 'theme'):
-                self.config_manager.set_theme(self.config.get(SETTINGS_SEC, 'theme'))
+        if not self.config.has_section(SETTINGS_SEC):
+            self.config.add_section(SETTINGS_SEC)
+        if self.config.has_option(SETTINGS_SEC, 'theme'):
+            self.config_manager.set_theme(self.config.get(SETTINGS_SEC, 'theme'))
 
     def load_personal_section(self):
         if self.config.has_section(PERSONAL_SEC):
@@ -60,7 +61,7 @@ class ConfigManager:
     """
 
     def __init__(self, logger=None):
-        self.config = None
+        self.config = configparser.ConfigParser()
         self.settings = settings
         self.ini_loader = IniLoader(self)
         self.ini_loader.load_ini()
@@ -194,7 +195,7 @@ class ConfigManager:
         self.write_settings_section()
         self.write_personal_section()
         self.write_activity_section()
-        self.write_activity_section()
+        self.write_path_section()
         with open(self.get_config_path(), 'w') as file:
             self.config.write(file)
 
@@ -209,7 +210,8 @@ class ConfigManager:
     """Default Writer für die Jeweiligen Sektionen"""
 
     def write_settings_section(self):
-        self.config.add_section(SETTINGS_SEC)
+        if not self.config.has_section(SETTINGS_SEC):
+            self.config.add_section(SETTINGS_SEC)
         self.config.set(SETTINGS_SEC, 'theme', self.get_theme())
 
     def write_personal_section(self):
@@ -227,10 +229,14 @@ class ConfigManager:
     """Parameter Writer für die Jeweiligen Sektionen"""
 
     def write_settings_param(self, param, value):
+        if not self.config.has_section(SETTINGS_SEC):
+            self.config.add_section(SETTINGS_SEC)
         self.config.set(SETTINGS_SEC, param, value)
         self.write_file()
 
     def write_personal_param(self, param, value):
+        if not self.config.has_section(PERSONAL_SEC):
+            self.config.add_section(PERSONAL_SEC)
         self.config.set(PERSONAL_SEC, param, value)
         self.write_file()
 

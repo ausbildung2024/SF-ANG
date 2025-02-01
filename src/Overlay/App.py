@@ -8,13 +8,13 @@ import webbrowser
 from logging import Logger
 from pathlib import Path
 
-from dateutil.rrule import weekday
-
-from src import static
-from src.SettingsHandler import ConfigManager
+from src.FileManagement.EmptyFileCreator import EmptyFileCreator
+from src.Utils import static
+from src.Overlay.EmptyDocumentPopUp import DateDialog
+from src.SettingManagement.SettingsHandler import ConfigManager
 from tkinter import messagebox, filedialog
-from src.WeekDataProcessor import WeekDataProcessor
-from src.WordTemplate import WordTemplate
+from src.FileManagement.WeekDataProcessor import WeekDataProcessor
+from src.FileManagement.WordTemplate import WordTemplate
 
 
 class App:
@@ -24,7 +24,6 @@ class App:
         self.root = tk.Tk() # Setzen des Hauptfensters der UI
         self.root.title(self.CM.get_app_name()) #Setzt den Titel der App
         self.menubar = tk.Menu(self.root)
-        self.root.geometry("236x195")
         self.root.resizable(False, False)
 
 
@@ -49,18 +48,15 @@ class App:
 
         # Generiert eingabefelder für die Einstellungen
         self.label_entry_helper(0, self.CM.get_label('name'), self.name_var)
-        self.label_entry_helper(1, self.CM.get_label('year'), self.year_var)
-        self.label_entry_helper(2, self.CM.get_label('hour'), self.hour_var)
+        self.year_selection_menu(1)
+
 
         # Generiert Felder für das setzen der Pfade
         self.file_selector_helper(3,self.CM.get_label('csv'), self.csv_path,self.get_csv_path )
-        self.file_selector_helper(4,self.CM.get_label('template'), self.template_path,self.get_template_path)
-        self.file_selector_helper(5,self.CM.get_label('output'), self.output_path,self.get_output_path)
+        self.file_selector_helper(4,self.CM.get_label('output'), self.output_path,self.get_output_path)
 
         # Generiert den Knopf der das Generieren bestätigt:
-        tk.Button(self.root, text=self.CM.get_label('generate'), command=self.generate_document).grid(row=6, column=1)
-
-        #tk.Button(self.root, text="Leere Vorlage", command=self.empty_document).grid(row=6, column=0)
+        tk.Button(self.root, text=self.CM.get_label('generate'), command=self.generate_document).grid(row=5, column=1)
 
         # Setzen der Standard Werte
         self.name_var.set(self.CM.get_name())
@@ -117,26 +113,6 @@ class App:
 
         self.add_settings_menu()
         self.add_theme_menu()
-        self.add_help_menu()
-
-    def add_help_menu(self):
-        help_menu = tk.Menu(self.root, tearoff=False)
-
-        self.menubar.add_cascade(
-            label="About",
-            menu=help_menu
-        )
-
-        help_menu.add_command(
-            label="Auf Updates überprüfen",
-            #command=
-        )
-
-        help_menu.add_command(
-            label="Help",
-            #command=
-        )
-
 
     def add_settings_menu(self):
 
@@ -147,6 +123,11 @@ class App:
         self.menubar.add_cascade(
             label="Settings",
             menu=settings_menu
+        )
+
+        settings_menu.add_command(
+            label="Leeres Dokument",
+            command=self.empty_document
         )
 
         settings_menu.add_separator()
@@ -229,6 +210,14 @@ class App:
         label.grid(row = row, column = column)
         entry.grid(row = row, column = column + 1)
 
+    """
+    Generieren eines Labels zusammen mit einem Auswahlmenü
+    """
+    def year_selection_menu(self,row,column = 0):
+        label = tk.Label(self.root, text =self.CM.get_label('year'))
+        label.grid(row = row, column = column)
+        option_menu = tk.OptionMenu(self.root,self.year_var,*['1','2','3'])
+        option_menu.grid(row = row, column = column + 1)
 
     """
     Öffnet ein Pop Up zum auswählen einer datei/ordner
@@ -281,22 +270,42 @@ class App:
         button.grid(row=row, column=column + 1)
 
     def empty_document(self):
+        dialog = DateDialog(self.root,title='Datum')
 
-        self.generate_document(True)
+        #self.generate_document({'year':dialog.year,'month':dialog.month})
+        template = self.load_template()
+        efc = EmptyFileCreator(self.logger, self.CM, template, {'year':int(dialog.year),'month':int(dialog.month)})
+        efc.clear_placeholders()
+
+        try:
+            output_path = template.save_document(Path(self.output_path.get()))
+            self.show_success("Dokument erfolgreich erstellt.")
+            os.startfile(output_path)
+        except Exception as e:
+            self.show_error(f"Fehler beim Speichern des Dokuments: {e}")
+
+
 
     """
     Lädt die CSV und die Vorlage um daraus ein Fertiges Dokument zu generieren
     """
-    def generate_document(self, empty = False):
+    def generate_document(self,date = None):
         self.update_config()
 
         template = self.load_template()
-        if not empty:
+
+        if date is None:
             csv = self.load_csv()
         else:
             csv = None
 
         week_processor = WeekDataProcessor(self.logger, self.CM, template, csv)
+
+        if date is None:
+            week_processor.process_all_weeks()
+        else:
+            week_processor.process_all_empty_weeks(date)
+
         week_processor.process_all_weeks()  # Verarbeitet alle Wochendaten aus der CSV und füllt die Vorlage
 
         try:
@@ -317,7 +326,7 @@ class App:
     Lädt die daten aus der csv datei (von Successfactor generiert)
     """
     def load_csv(self):
-        csv_data = static.load_csv(self.CM,self.logger, Path(self.csv_path.get()))
+        csv_data = static.load_csv(self.CM, self.logger, Path(self.csv_path.get()))
         if csv_data is None:  # Falls das Laden der CSV-Daten fehlschlägt, wird eine Fehlermeldung angezeigt
             self.show_error("Fehler beim Laden der CSV-Datei.")
             return
