@@ -5,20 +5,18 @@ import tkinter as tk
 import sv_ttk
 import darkdetect
 import webbrowser
-from logging import Logger
 from pathlib import Path
 
-from src.FileManagement.EmptyFileCreator import EmptyFileCreator
-from src.Utils import static
-from src.Overlay.EmptyDocumentPopUp import DateDialog
-from src.SettingManagement.SettingsHandler import ConfigManager
+from src.Overlay.DateDialog import DateDialog
+from src.SettingManagement.ConfigManager import ConfigManager
 from tkinter import messagebox, filedialog
 from src.FileManagement.WeekDataProcessor import WeekDataProcessor
 from src.FileManagement.WordTemplate import WordTemplate
+from src.utils import load_csv
 
 
 class App:
-    def __init__(self, logger: Logger, configManager: ConfigManager):
+    def __init__(self,configManager: ConfigManager):
         self.CM = configManager
 
         self.root = tk.Tk() # Setzen des Hauptfensters der UI
@@ -27,7 +25,7 @@ class App:
         self.root.resizable(False, False)
 
 
-        self.logger = logger
+        self.logger = self.CM.get_logger()
 
         self.set_icon() # Setzt das Icon
 
@@ -272,19 +270,7 @@ class App:
     def empty_document(self):
         dialog = DateDialog(self.root,title='Datum')
 
-        #self.generate_document({'year':dialog.year,'month':dialog.month})
-        template = self.load_template()
-        efc = EmptyFileCreator(self.logger, self.CM, template, {'year':int(dialog.year),'month':int(dialog.month)})
-        efc.clear_placeholders()
-
-        try:
-            output_path = template.save_document(Path(self.output_path.get()))
-            self.show_success("Dokument erfolgreich erstellt.")
-            os.startfile(output_path)
-        except Exception as e:
-            self.show_error(f"Fehler beim Speichern des Dokuments: {e}")
-
-
+        self.generate_document({'year':dialog.year,'month':dialog.month})
 
     """
     Lädt die CSV und die Vorlage um daraus ein Fertiges Dokument zu generieren
@@ -296,17 +282,10 @@ class App:
 
         if date is None:
             csv = self.load_csv()
+            WeekDataProcessor(self.CM, template, csv).process_all_weeks()
         else:
-            csv = None
+            WeekDataProcessor(self.CM, template).process_all_empty_weeks(date)
 
-        week_processor = WeekDataProcessor(self.logger, self.CM, template, csv)
-
-        if date is None:
-            week_processor.process_all_weeks()
-        else:
-            week_processor.process_all_empty_weeks(date)
-
-        week_processor.process_all_weeks()  # Verarbeitet alle Wochendaten aus der CSV und füllt die Vorlage
 
         try:
             output_path = template.save_document(Path(self.output_path.get()))
@@ -326,7 +305,7 @@ class App:
     Lädt die daten aus der csv datei (von Successfactor generiert)
     """
     def load_csv(self):
-        csv_data = static.load_csv(self.CM, self.logger, Path(self.csv_path.get()))
+        csv_data = load_csv(self.CM, self.logger, Path(self.csv_path.get()))
         if csv_data is None:  # Falls das Laden der CSV-Daten fehlschlägt, wird eine Fehlermeldung angezeigt
             self.show_error("Fehler beim Laden der CSV-Datei.")
             return
