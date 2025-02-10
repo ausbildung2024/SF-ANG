@@ -6,7 +6,7 @@ from src.SettingManagement.ConfigManager import ConfigManager
 
 if __name__ == "__main__":
     """
-    Der Einstiegspunkt der Anwendung. Hier wird die Tkinter-GUI gestartet und die Hauptanwendung geladen.
+    Der Einstiegspunkt der Anwendung. Hier wird die PyQT-GUI gestartet und die Hauptanwendung geladen.
     """
 
     CM = ConfigManager()
@@ -14,4 +14,3 @@ if __name__ == "__main__":
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(CM.get_app_id()) #Setzt die App ID von dem Prozess
 
     app = App(CM) #Erstellt die App
-    app.root.mainloop()#Loopt über die App

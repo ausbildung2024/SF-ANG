@@ -4,6 +4,7 @@ from pathlib import Path
 import src.utils
 from src.SettingManagement.SettingsDict import settings
 from src.SettingManagement.IniLoader import *
+
 class ConfigManager:
     """
     Initialisiert den ConfigManager
@@ -99,6 +100,14 @@ class ConfigManager:
     def set_default_hours(self, default_hours):
         self.write_personal_param('default_hours', default_hours)
         self.settings['personal']['default_hours'] = default_hours
+
+    def set_csv_path(self, param : str):
+        param = param.replace('file:///','')
+        if param.endswith('.csv') and Path(param).exists():
+            self.settings['paths']['input_csv'] = param
+            return True
+        else:
+            return False
 
     def get_csv_path(self):
         return Path(self.get_paths()['input_csv']).as_posix()
