@@ -1,9 +1,8 @@
-import configparser
 from pathlib import Path
 
-import src.utils
-from src.SettingManagement.SettingsDict import settings
-from src.SettingManagement.IniLoader import *
+import src.Settings.logger
+from src.Settings.SettingsDict import settings
+from src.FileManagment.IniLoader import *
 
 class ConfigManager:
     """
@@ -15,7 +14,7 @@ class ConfigManager:
         self.settings = settings
         self.ini_loader = IniLoader(self)
         self.ini_loader.load_ini()
-        self.logger = src.utils.create_logger(self)
+        self.logger = src.Settings.logger.create_logger(self)
 
     @staticmethod
     def _ensure_path_exists(path: Path):

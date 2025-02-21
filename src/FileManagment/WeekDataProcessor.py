@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta, date
-from locale import currency
+from datetime import datetime, timedelta
 from typing import Tuple
 
 import pandas as pd
 
-from src.SettingManagement.ConfigManager import ConfigManager
-from src.FileManagement.WordTemplate import WordTemplate
+from src.Settings.ConfigManager import ConfigManager
+from src.FileManagment.WordLoader import WordTemplate
 
 
 class WeekDataProcessor:

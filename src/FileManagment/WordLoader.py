@@ -14,7 +14,7 @@ class WordTemplate:
     Initialisiert das WordTemplate-Objekt.
 
     Parameter:
-    - logger: Ein Logger-Objekt zur Protokollierung von Informationen und Fehlern.
+    - logger.py: Ein Logger-Objekt zur Protokollierung von Informationen und Fehlern.
     - doc_path: Ein Pfad zur Word-Vorlagendatei.
     """
 

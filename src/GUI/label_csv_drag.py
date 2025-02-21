@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets
 from pandas.io.common import file_path_to_url
 
-from src.SettingManagement.ConfigManager import ConfigManager
+from src.Settings.ConfigManager import ConfigManager
 
 
 class label_csv_drag(QtWidgets.QLabel):
