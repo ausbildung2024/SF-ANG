@@ -25,10 +25,13 @@ class WeekDataProcessor:
         self.weeks_data = self.initialize_weeks_data(school)
 
     def initialize_weeks_data(self,school = None):
-        if self.csv is None:
-            return self.csv_processor.parse_empty_week_data(school)
-        else:
-            return self.csv_processor.parse_week_data()
+        try:
+            if self.csv is None:
+                return self.csv_processor.parse_empty_week_data(school)
+            else:
+                return self.csv_processor.parse_week_data()
+        except Exception as e:
+            raise e
 
     def process_week_placeholders(self, week, entries, date = None):
         """Ersetzt Platzhalter für eine Woche im Dokument."""

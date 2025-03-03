@@ -4,11 +4,37 @@ Lädt die CSV Datei
 from pathlib import Path
 
 import pandas as pd
+from numpy.f2py.auxfuncs import throw_error
+
 from src.Settings.ConfigManager import ConfigManager
 from src.Utils.DateUtil import *
+from src.Utils.FileUtil import is_file_valid
 
-DELIMITER = ';'
+### KONSTANTEN:
 
+#Aktivitäten
+ACT_BS = 'Berufsschule'
+ACT_BT = 'Betrieb'
+ACT_NA = 'NA'
+ACT_OT = 'Urlaub/Feiertag'
+
+#CSV FELDER
+CSV_ACT = 'Tätigkeitsbeschreibung'
+CSV_DAY = 'Tag'
+CSV_CON = 'Beschreibung'
+
+
+#Week Data Datentsätze
+WDA_CON = 'Inhalt'
+WDA_TYP = 'Art'
+
+
+# Anderes
+DELIMITER = ';' #Wird zum Aufteilen der CSV Datei verwendet.
+CSV_FILETYPE = '.csv'
+"""
+
+"""
 class CSVProcessor:
     def __init__(self, config_manager: ConfigManager, path: Path = None):
         self.config : ConfigManager = config_manager
@@ -58,24 +84,39 @@ class CSVProcessor:
 
     def get_row_entry(self,row):
         return {
-            row['Tag'].upper(): {
-                "Art": self.get_activity_type(row['Tätigkeitsbeschreibung'].upper()),
-                "Inhalt": row.get('Beschreibung', ''),
+            row[CSV_DAY].upper(): {
+                WDA_TYP: self.get_activity_type(row[CSV_ACT].upper()),
+                WDA_CON: row.get(CSV_CON, ''),
             }
         }
 
+    """
+    Erstellt ein Dictionary für Vorlagen welches für die weitere verarbeitung der Wochendaten benötigt wird. 
+    
+    Attribute:
+        school: Dictionary, indem gespeichert wird an welchen Tagen Berufsschule ist
+    """
     def parse_empty_week_data(self, school):
+        #Erstellt ein Leerens Week Data Dictionary für 5 Wochen
         weeks_data = {1: [], 2: [], 3: [], 4: [], 5: []}
-        for current_week in range(1, 6):  # 5Tage 5 Wochen
+        #Geht durch jeden Monat und jeden Tag
+        for current_week in range(1, 6):
             for current_day in range(0, 5):
-
-                weeks_data[current_week].append(
-                    {self.config.get_work_days()[current_day]: {'Art': 'Betrieb', 'Inhalt': ''}})
+                current_day_as_str = self.config.get_work_days()[current_day]
+                # Überprüft, ob an dem Tag Schule oder Betrieb ist
+                activity = ACT_BS if school[current_day_as_str] else ACT_BT
+                #Fügt den Tag zu den wochen hinzu
+                weeks_data[current_week].append({current_day_as_str: {WDA_TYP: activity, WDA_CON: ''}})
         return weeks_data
 
+    """
+    
+    """
     def parse_week_data(self):
-        if not self.is_path_valid(self.path):
-            return 'Pfad nicht gefunden'
+        try:
+            is_file_valid(self.path,CSV_FILETYPE)
+        except Exception as e:
+            raise e
 
         week_data = {}
         start_week = self.get_start_date()
@@ -92,7 +133,7 @@ class CSVProcessor:
             existing_days = {tag for entry in entries for tag in entry.keys()}
             missing_days = set(self.config.get_work_days()) - existing_days
             for day in missing_days:
-                entries.append({day: {"Art": "Urlaub/Feiertag", "Inhalt": ""}})
+                entries.append({day: {WDA_TYP: ACT_OT, WDA_CON: ""}})
                 #Missing Days
 
         return week_data

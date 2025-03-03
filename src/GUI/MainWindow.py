@@ -62,20 +62,20 @@ class MainWindow(Ui_MainWindow):
         template = self.load_template()
 
         #Verarbeitung der Daten
-        if date is None:
-            self.csv_processor.load_csv(Path(self.CM.get_csv_path()))
-            WeekDataProcessor(self.CM, template, self.csv_processor).process_all_weeks()
-        else:
-            school = self.get_temp_week_data()
-            WeekDataProcessor(self.CM, template, self.csv_processor,school).process_all_empty_weeks(date, school)
-
-        #Speichern des dokuments
         try:
+            if date is None:
+                self.csv_processor.load_csv(Path(self.CM.get_csv_path()))
+                WeekDataProcessor(self.CM, template, self.csv_processor).process_all_weeks()
+            else:
+                school = self.get_temp_week_data()
+                WeekDataProcessor(self.CM, template, self.csv_processor,school).process_all_empty_weeks(date, school)
+
             output_path = template.save_document(Path(self.CM.get_output_path()))
             #self.show_success("Dokument erfolgreich erstellt.")
             os.startfile(output_path)
         except Exception as e:
-            #self.show_error(f"Fehler beim Speichern des Dokuments: {e}")
+            emsg = str(e)
+            print(emsg)
             pass
 
     def update_config(self):
@@ -104,9 +104,9 @@ class MainWindow(Ui_MainWindow):
 
     def get_temp_week_data(self):
         return {
-            "montag":self.cb_vorlage_montag.isChecked(),
-            "dienstag": self.cb_vorlage_dienstag.isChecked(),
-            "mittwoch": self.cb_vorlage_mittwoch.isChecked(),
-            "donnerstag": self.cb_vorlage_donnerstag.isChecked(),
-            "freitag": self.cb_vorlage_freitag.isChecked()
+            "MONTAG":self.cb_vorlage_montag.isChecked(),
+            "DIENSTAG": self.cb_vorlage_dienstag.isChecked(),
+            "MITTWOCH": self.cb_vorlage_mittwoch.isChecked(),
+            "DONNERSTAG": self.cb_vorlage_donnerstag.isChecked(),
+            "FREITAG": self.cb_vorlage_freitag.isChecked()
         }

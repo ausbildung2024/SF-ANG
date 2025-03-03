@@ -6,21 +6,21 @@ from typing import Dict, Optional
 from docx import Document
 
 """
-Lädt und manipuliert die Word-Dokument-Vorlage zur Erstellung von Berichten.
+Lädt und manipuliert die Word-Dokument-Vorlage zur Erstellung von Nachweisen.
 """
 class WordTemplate:
 
     """
     Initialisiert das WordTemplate-Objekt.
     """
-
     def __init__(self, doc_path: Path):
         self.document = Document(doc_path)
 
     """
     Ersetzt einen Platzhalter in einer Zelle des Dokuments durch einen Wert.
     """
-    def replace_placeholders(self, cell, placeholder: str, value: str):
+    @staticmethod
+    def replace_placeholders(cell, placeholder: str, value: str):
         if placeholder in cell.text:
             # Ersetzt den Platzhalter nur, wenn er in der Zelle vorhanden ist.
             cell.text = cell.text.replace(placeholder, str(value))
@@ -46,6 +46,4 @@ class WordTemplate:
         except Exception as e:
             # Fehler beim Speichern
             pass
-
-
         return output_path
