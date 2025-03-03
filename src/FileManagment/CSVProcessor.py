@@ -64,10 +64,11 @@ class CSVProcessor:
             }
         }
 
-    def parse_empty_week_data(self):
+    def parse_empty_week_data(self, school):
         weeks_data = {1: [], 2: [], 3: [], 4: [], 5: []}
         for current_week in range(1, 6):  # 5Tage 5 Wochen
             for current_day in range(0, 5):
+
                 weeks_data[current_week].append(
                     {self.config.get_work_days()[current_day]: {'Art': 'Betrieb', 'Inhalt': ''}})
         return weeks_data

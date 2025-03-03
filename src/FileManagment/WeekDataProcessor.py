@@ -14,7 +14,7 @@ class WeekDataProcessor:
     Verarbeitet Wochendaten aus einer CSV und füllt Platzhalter in einer Word-Vorlage.
     """
 
-    def __init__(self, CM: ConfigManager, document: WordTemplate, csv: CSVProcessor = None):
+    def __init__(self, CM: ConfigManager, document: WordTemplate, csv: CSVProcessor = None, school = None):
         self.CM = CM
         self.document = document
         self.csv_processor = csv
@@ -22,11 +22,11 @@ class WeekDataProcessor:
         if csv is not None:
             self.csv = csv.get_dataframe()
 
-        self.weeks_data = self.initialize_weeks_data()
+        self.weeks_data = self.initialize_weeks_data(school)
 
-    def initialize_weeks_data(self):
+    def initialize_weeks_data(self,school = None):
         if self.csv is None:
-            return self.csv_processor.parse_empty_week_data()
+            return self.csv_processor.parse_empty_week_data(school)
         else:
             return self.csv_processor.parse_week_data()
 
@@ -72,6 +72,6 @@ class WeekDataProcessor:
         for week, entries in self.weeks_data.items():
             self.process_week_placeholders(week, entries)
 
-    def process_all_empty_weeks(self, date):
+    def process_all_empty_weeks(self, date, schooldays):
         for week, entries in self.weeks_data.items():
             self.process_week_placeholders(week,entries,f"1.{date['month']}.{date['year']}")

@@ -66,9 +66,10 @@ class MainWindow(Ui_MainWindow):
             self.csv_processor.load_csv(Path(self.CM.get_csv_path()))
             WeekDataProcessor(self.CM, template, self.csv_processor).process_all_weeks()
         else:
-            WeekDataProcessor(self.CM, template, self.csv_processor).process_all_empty_weeks(date)
+            school = self.get_temp_week_data()
+            WeekDataProcessor(self.CM, template, self.csv_processor,school).process_all_empty_weeks(date, school)
 
-        #Speichern des documents
+        #Speichern des dokuments
         try:
             output_path = template.save_document(Path(self.CM.get_output_path()))
             #self.show_success("Dokument erfolgreich erstellt.")
@@ -100,3 +101,12 @@ class MainWindow(Ui_MainWindow):
 
     def get_temp_date_dict(self):
         return { 'year' : self.tmp_date.date().year() , 'month' : self.tmp_date.date().month() }
+
+    def get_temp_week_data(self):
+        return {
+            "montag":self.cb_vorlage_montag.isChecked(),
+            "dienstag": self.cb_vorlage_dienstag.isChecked(),
+            "mittwoch": self.cb_vorlage_mittwoch.isChecked(),
+            "donnerstag": self.cb_vorlage_donnerstag.isChecked(),
+            "freitag": self.cb_vorlage_freitag.isChecked()
+        }
