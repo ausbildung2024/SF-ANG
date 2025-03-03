@@ -1,7 +1,6 @@
 import ctypes
 import sys
 
-from src.Settings.logger import *
 from PySide6.QtWidgets import QApplication, QMainWindow
 from src.GUI.MainWindow import MainWindow
 from src.Settings.ConfigManager import ConfigManager

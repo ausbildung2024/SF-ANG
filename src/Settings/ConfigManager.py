@@ -1,8 +1,7 @@
 from pathlib import Path
 
-import src.Settings.logger
 from src.Settings.SettingsDict import settings
-from src.FileManagment.IniLoader import *
+from src.FileManagment.INIProcessor import *
 
 class ConfigManager:
     """
@@ -14,7 +13,6 @@ class ConfigManager:
         self.settings = settings
         self.ini_loader = IniLoader(self)
         self.ini_loader.load_ini()
-        self.logger = src.Settings.logger.create_logger(self)
 
     @staticmethod
     def _ensure_path_exists(path: Path):
@@ -205,6 +203,3 @@ class ConfigManager:
     def write_path_param(self, param, value):
         self.config.set(SETTINGS_SEC, param, value)
         self.write_file()
-
-    def get_logger(self):
-        return self.logger

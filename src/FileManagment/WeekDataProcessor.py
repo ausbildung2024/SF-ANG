@@ -3,8 +3,10 @@ from typing import Tuple
 
 import pandas as pd
 
+from src.FileManagment.CSVProcessor import CSVProcessor
 from src.Settings.ConfigManager import ConfigManager
-from src.FileManagment.WordLoader import WordTemplate
+from src.FileManagment.WordProcessor import WordTemplate
+from src.Utils.DateUtil import get_week_range
 
 
 class WeekDataProcessor:
@@ -12,73 +14,28 @@ class WeekDataProcessor:
     Verarbeitet Wochendaten aus einer CSV und füllt Platzhalter in einer Word-Vorlage.
     """
 
-    def __init__(self, CM: ConfigManager, document: WordTemplate, csv: pd.DataFrame = None):
-        self.logger = CM.get_logger()
+    def __init__(self, CM: ConfigManager, document: WordTemplate, csv: CSVProcessor = None):
         self.CM = CM
         self.document = document
-        self.csv = csv
+        self.csv_processor = csv
+        self.csv = None
+        if csv is not None:
+            self.csv = csv.get_dataframe()
+
         self.weeks_data = self.initialize_weeks_data()
-
-    def get_week(self, date_str: str) -> int:
-        """Berechnet die Kalenderwoche aus einem Datum."""
-        try:
-            return datetime.strptime(date_str, "%d.%m.%Y").isocalendar()[1]
-        except ValueError as e:
-            self.logger.error(f"Fehler beim Parsen des Datums '{date_str}': {e}")
-            return -1
-
-    def get_activity_type(self, activity: str) -> str:
-        """Gibt den Typ einer Tätigkeit zurück oder einen Standardwert."""
-        return self.CM.get_activitys().get(activity, self.CM.get_activitys()['NA'])
-
-    def initialize_week_data_from_csv(self):
-        """Organisiert Daten nach Kalenderwochen."""
-        weeks_data = {}
-
-        start_week = self.get_week(self.csv['Datum'].iloc[0])
-
-        for _, row in self.csv.iterrows():
-            current_week = self.get_week(row['Datum'])
-            relative_week = current_week - start_week + 1
-            row_entry = {
-                row['Tag'].upper(): {
-                    "Art": self.get_activity_type(row['Tätigkeitsbeschreibung'].upper()),
-                    "Inhalt": row.get('Beschreibung', ''),
-                }
-            }
-            weeks_data.setdefault(relative_week, []).append(row_entry)
-
-        for week, entries in weeks_data.items():
-            existing_days = {tag for entry in entries for tag in entry.keys()}
-            missing_days = set(self.CM.get_work_days()) - existing_days
-            for day in missing_days:
-                entries.append({day: {"Art": "", "Inhalt": ""}})
-                self.logger.warning(self.CM.get_error_messages()['missing_days'].format(day=day, week=week))
-
-        return weeks_data
-
-    def initialize_week_data_empty(self):
-        weeks_data = {1:[],2:[],3:[],4:[],5:[]}
-        for current_week in range(1,6): # 5Tage 5 Wochen
-            for current_day in range(0,5):
-                weeks_data[current_week].append({self.CM.get_work_days()[current_day]:{'Art':'Betrieb','Inhalt':''}})
-        return weeks_data
 
     def initialize_weeks_data(self):
         if self.csv is None:
-            return self.initialize_week_data_empty()
+            return self.csv_processor.parse_empty_week_data()
         else:
-            return self.initialize_week_data_from_csv()
-
-
-
+            return self.csv_processor.parse_week_data()
 
     def process_week_placeholders(self, week, entries, date = None):
         """Ersetzt Platzhalter für eine Woche im Dokument."""
         if self.csv is None:
-            start_date, end_date = self.calculate_week_range(date, week -1)
+            start_date, end_date = get_week_range(date, week -1)
         else:
-            start_date, end_date = self.calculate_week_range(self.csv['Datum'][0], week - 1)
+            start_date, end_date = get_week_range(self.csv['Datum'][0], week - 1)
 
         general_placeholders = {
             '{NAME}': self.CM.get_name(),
@@ -109,14 +66,6 @@ class WeekDataProcessor:
         """Formatiert Tätigkeitsinhalt für das Dokument."""
         content = content.replace('Berufsschule', '').strip()
         return f"-   {content.replace(',', '').replace('- ', '').replace('\n', '\n-   ')}" if content else ''
-
-    def calculate_week_range(self, start_date: str, week_offset: int) -> Tuple[str, str]:
-        """Berechnet Start- und Enddatum einer Woche."""
-        start = datetime.strptime(start_date, "%d.%m.%Y")
-        days_to_monday = (start.weekday() - 0) % 7
-        start_of_week = start - timedelta(days=days_to_monday) + timedelta(weeks=week_offset)
-        end_of_week = start_of_week + timedelta(days=(4 - start_of_week.weekday()) % 7)
-        return start_of_week.strftime("%d.%m.%Y"), end_of_week.strftime("%d.%m.%Y")
 
     def process_all_weeks(self):
         """Füllt Platzhalter für alle Wochen aus."""
