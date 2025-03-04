@@ -3,6 +3,7 @@ import webbrowser
 from datetime import datetime
 from pathlib import Path
 
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import QDate
 
 from src.FileManagment.WeekDataProcessor import WeekDataProcessor
@@ -75,7 +76,7 @@ class MainWindow(Ui_MainWindow):
             os.startfile(output_path)
         except Exception as e:
             emsg = str(e)
-            print(emsg)
+            self.create_error_dialog(emsg)
             pass
 
     def update_config(self):
@@ -110,3 +111,21 @@ class MainWindow(Ui_MainWindow):
             "DONNERSTAG": self.cb_vorlage_donnerstag.isChecked(),
             "FREITAG": self.cb_vorlage_freitag.isChecked()
         }
+
+    """
+    Erstellt einen Fehler Dialog
+    
+    Attribute:
+        err_msg: Die anzuzeigende Fehlernachricht
+    """
+    def create_error_dialog(self,err_msg):
+        error_dialog = QtWidgets.QErrorMessage()
+        # Freezed das Hauptfenster wenn die Message angezeigt wird
+        error_dialog.setModal(True)
+        #Setzt die Strings des Fensters
+        error_dialog.setWindowTitle("Fehler!")
+        error_dialog.showMessage(err_msg)
+        #Führt den Dialog aus
+        error_dialog.exec_()
+
+

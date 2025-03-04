@@ -22,16 +22,21 @@ ACT_OT = 'Urlaub/Feiertag'
 CSV_ACT = 'Tätigkeitsbeschreibung'
 CSV_DAY = 'Tag'
 CSV_CON = 'Beschreibung'
-
+CSV_DAT = 'Datum'
 
 #Week Data Datentsätze
 WDA_CON = 'Inhalt'
 WDA_TYP = 'Art'
 
-
-# Anderes
+#Anderes
 DELIMITER = ';' #Wird zum Aufteilen der CSV Datei verwendet.
 CSV_FILETYPE = '.csv'
+
+#Error Nachrichten
+ERR_CSV_NC = "Das erstellen eines CSV Loaders ist schiefgelaufen"
+ERR_CSV_NL = "Das laden der CSV ist schiefgelaufen"
+ERR_CSV_NV = 'Die CSV ist nicht vollständig! Es fehlen Folgende Zeilen: {}. Überprüfe ob die CSV die richtige Sprache hat'
+
 """
 
 """
@@ -45,7 +50,7 @@ class CSVProcessor:
             if path is not None:
                 self.load_csv(path)
         except Exception as e:
-            e.add_note("Das erstellen eines CSV Loaders ist schiefgelaufen")
+            e.add_note(ERR_CSV_NC)
             raise e
 
     """
@@ -59,36 +64,32 @@ class CSVProcessor:
             is_file_valid(path)
             self.path = path
             self.dataframe = pd.read_csv(self.path, delimiter=DELIMITER)
+            self.is_csv_valid()
             return True
         except Exception as e:
             raise e
 
+    """
+    Überprüft ob die CSV Datei gültig ist.
+    """
     def is_csv_valid(self):
         if self.dataframe is None:
-            return 'CSV not loaded'
+            raise Exception(ERR_CSV_NL)
 
         required_columns = self.config.get_csv_columns()
         missing_columns = required_columns - set(self.dataframe.columns)
 
         if missing_columns:
-            return f'CSV missing columns: {missing_columns}'
+            raise Exception(ERR_CSV_NV.format(missing_columns))
 
-        return True
-
+    """
+    Gibt den Dataframe (CSV) zurück
+    """
     def get_dataframe(self):
         return self.dataframe
 
-    def set_csv_path(self, csv_path: Path):
-        self.path = csv_path
-
-    def get_config_manager(self):
-        return self.config
-
-    def set_config_manager(self, config_manager: ConfigManager):
-        self.config = config_manager
-
     def get_start_date(self):
-        return get_week_from_date(self.dataframe['Datum'].iloc[0])
+        return get_week_from_date(self.dataframe[CSV_DAT].iloc[0])
 
     def get_row_entry(self, row):
         return {
@@ -148,7 +149,7 @@ class CSVProcessor:
         #Generiert das Week data dictionary
         for _, row in self.dataframe.iterrows():
             #Berechnet die Aktuelle woche für die weitere verarbeitung
-            relative_week = get_relative_week(start_week,get_week_from_date(row['Datum']))
+            relative_week = get_relative_week(start_week,get_week_from_date(row[CSV_DAT]))
             #Fügt das template mit der Tätigkeit den wochen hinzu
             week_data.setdefault(relative_week, []).append(self.get_row_entry(row))
 

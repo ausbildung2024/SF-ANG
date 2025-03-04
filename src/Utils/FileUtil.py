@@ -1,8 +1,8 @@
 from pathlib import Path
 
 PATH_NE = "der pfad '{}' existiert nicht"
-PATH_NFO = "der pfad '{}' ist ein File, es wird jedoch ein Ordner erwartet"
-PATH_NFI = "der pfad '{}' ist ein Ordner, es wird jedoch ein File erwartet"
+PATH_NFI = "der pfad '{}' ist ein File, es wird jedoch ein Ordner erwartet"
+PATH_NFO = "der pfad '{}' ist ein Ordner, es wird jedoch ein File erwartet"
 PATH_WFF = "der File '{}' hat ein falsches format erwartet wird '{}'"
 
 def is_path_valid(path : Path,is_folder : bool, type : str = None):
