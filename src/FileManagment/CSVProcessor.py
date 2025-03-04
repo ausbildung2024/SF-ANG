@@ -41,19 +41,27 @@ class CSVProcessor:
         self.path : Path = path
         self.dataframe = None
 
-        if path is not None:
-            self.load_csv(path)
+        try:
+            if path is not None:
+                self.load_csv(path)
+        except Exception as e:
+            e.add_note("Das erstellen eines CSV Loaders ist schiefgelaufen")
+            raise e
 
-    def is_path_valid(self, path: Path):
-        return path.exists()
-
+    """
+    Überprüft ob der Pfad Existiert, und wenn lädt er die csv Datei
+    
+    Attribute:
+        path: Der Pfad zu der CSV Datei
+    """
     def load_csv(self, path: Path):
-
-        if self.is_path_valid(path):
-            self.set_csv_path(path)
-            self.dataframe = pd.read_csv(self.path,delimiter=DELIMITER)
-            return self.is_csv_valid()
-        return 'CSV Pfad nicht gefunden'
+        try:
+            is_file_valid(path)
+            self.path = path
+            self.dataframe = pd.read_csv(self.path, delimiter=DELIMITER)
+            return True
+        except Exception as e:
+            raise e
 
     def is_csv_valid(self):
         if self.dataframe is None:
@@ -82,7 +90,7 @@ class CSVProcessor:
     def get_start_date(self):
         return get_week_from_date(self.dataframe['Datum'].iloc[0])
 
-    def get_row_entry(self,row):
+    def get_row_entry(self, row):
         return {
             row[CSV_DAY].upper(): {
                 WDA_TYP: self.get_activity_type(row[CSV_ACT].upper()),
@@ -91,9 +99,25 @@ class CSVProcessor:
         }
 
     """
+    Wandelt den Tätigkeitswert aus der CSV in den für den nachweis Verwendbaren wert um.
+
+    Attribute:
+        activity: die art der Aktivität als string
+    """
+
+    def get_activity_type(self, activity: str) -> str:
+        return self.config.get_activitys().get(activity, self.config.get_activitys()[ACT_NA])
+
+    """
     Erstellt ein Dictionary für Vorlagen welches für die weitere verarbeitung der Wochendaten benötigt wird. 
     
     Attribute:
+            weeks_data: Dictionary, indem die Daten für die Wochen gespeichert werden
+            current_week: Integer, welcher die aktuelle Woche darstellt 1-5
+            current_day: Integer, welcher den aktuellen Tag darstellt 1-5
+            current_day_as_str: String, welcher den aktuellen Tag als String darstellt
+    
+    Übergabe-Attribute:
         school: Dictionary, indem gespeichert wird an welchen Tagen Berufsschule ist
     """
     def parse_empty_week_data(self, school):
@@ -103,7 +127,7 @@ class CSVProcessor:
         for current_week in range(1, 6):
             for current_day in range(0, 5):
                 current_day_as_str = self.config.get_work_days()[current_day]
-                # Überprüft, ob an dem Tag Schule oder Betrieb ist
+                #Überprüft, ob an dem Tag Schule oder Betrieb ist
                 activity = ACT_BS if school[current_day_as_str] else ACT_BT
                 #Fügt den Tag zu den wochen hinzu
                 weeks_data[current_week].append({current_day_as_str: {WDA_TYP: activity, WDA_CON: ''}})
@@ -137,7 +161,3 @@ class CSVProcessor:
                 #Missing Days
 
         return week_data
-
-    def get_activity_type(self, activity: str) -> str:
-        """Gibt den Typ einer Tätigkeit zurück oder einen Standardwert."""
-        return self.config.get_activitys().get(activity, self.config.get_activitys()['NA'])
