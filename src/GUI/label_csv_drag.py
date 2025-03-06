@@ -2,10 +2,10 @@ from csv import excel
 
 from PySide6 import QtWidgets
 from pathlib import Path
-from pandas.io.common import file_path_to_url
 
 from src.Settings.ConfigManager import ConfigManager
-from src.Utils.FileUtil import is_path_valid, is_file_valid
+from src.Utils.FileUtil import is_path_valid, is_file_valid, event_path_to_path
+from src.Utils.UiUtils import create_error_dialog, create_success_dialog
 
 
 class label_csv_drag(QtWidgets.QLabel):
@@ -28,15 +28,16 @@ class label_csv_drag(QtWidgets.QLabel):
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
-            file_path = event.mimeData().urls()[0]
             if self.CM is not None:
-                #TODO Hier muss noch error correction rein!!!
                 try:
-                    file_path = file_path_to_url(file_path.toLocalFile())
+                    file_path = event_path_to_path(event)
                     is_file_valid(file_path,'.csv')
-                    self.CM.set_csv_path(file_path)
+                    self.CM.set_csv_path(file_path.as_posix())
                 except Exception as e:
-                    raise e
+                    create_error_dialog(str(e))
+                else:
+                    create_success_dialog("File erfolgreich geladen!")
+
             event.accept()
         else:
             event.ignore()
