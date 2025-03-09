@@ -26,12 +26,7 @@ def is_path_valid(path : Path, is_folder : bool, file_end : str = None):
     if not path.exists():
 
         if is_folder:
-            try:
                 path.mkdir(parents=True, exist_ok=True)
-            except Exception as e:
-                raise e
-
-        raise FileNotFoundError(PATH_NE.format(path))
 
     #Falls ein Ordner zu prüfen war ist hier die prüfung zu ende
     if file_end is None:

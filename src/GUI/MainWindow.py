@@ -1,3 +1,5 @@
+import sys
+
 from src.FileManagment.INIProcessor import IniLoader
 from src.FileManagment.WeekDataProcessor import WeekDataProcessor
 from src.FileManagment.WordProcessor import WordTemplate
@@ -24,6 +26,7 @@ class MainWindow(Ui_MainWindow):
         self.successfactor_but.pressed.connect(lambda: self.on_sf_but_pressed())
         self.appdata_but.pressed.connect(lambda: self.on_appdata_but_pressed())
         self.config_but.pressed.connect(lambda: self.on_config_but_pressed())
+        self.save_but.pressed.connect(lambda: self.on_save_but_pressed())
 
         
         #Vorlage Datum
@@ -50,8 +53,14 @@ class MainWindow(Ui_MainWindow):
 
     def set_window_icon(self,MainWindow):
         app_icon = QtGui.QIcon()
-        app_icon.addFile(PTH_ICN_S.as_posix(), QtCore.QSize(16, 16))
-        app_icon.addFile(PTH_ICN_L.as_posix(), QtCore.QSize(32, 32))
+
+        if getattr(sys, 'frozen', False):
+            app_icon.addFile(str(os.path.join(sys._MEIPASS,PTH_ICN_S_EXE)), QtCore.QSize(16, 16))
+            app_icon.addFile(str(os.path.join(sys._MEIPASS,PTH_ICN_L_EXE)), QtCore.QSize(32, 32))
+        else:
+            app_icon.addFile(PTH_ICN_S.as_posix(), QtCore.QSize(16, 16))
+            app_icon.addFile(PTH_ICN_L.as_posix(), QtCore.QSize(32, 32))
+
         MainWindow.setWindowIcon(app_icon)
 
     def get_name(self):
@@ -65,7 +74,15 @@ class MainWindow(Ui_MainWindow):
         return self.lehrjahr.currentIndex() + 1
 
     def load_template(self):
-        word_template = WordTemplate(Path(PTH_TMP))
+
+        word_template = None
+
+        if getattr(sys, 'frozen', False):
+            word_template = WordTemplate(os.path.join(sys._MEIPASS,PTH_TMP_EXE))
+        else:
+            word_template = WordTemplate(Path(PTH_TMP))
+
+
         if word_template.document is None:  # Falls das Laden der Word-Vorlage fehlschlägt, wird eine Fehlermeldung angezeigt
             #self.show_error("Fehler beim Laden der Vorlage.")
             return
@@ -80,6 +97,9 @@ class MainWindow(Ui_MainWindow):
 
         #Verarbeitung der Daten
         try:
+            if self.csv_path is None and date is None:
+                raise FileNotFoundError(ERR_CSV_NL)
+
             data = self.get_data()
 
             if date is None:
@@ -100,7 +120,7 @@ class MainWindow(Ui_MainWindow):
 
     def set_csv_path(self,param):
         param = param.replace('file:///','')
-        if param.endswith('.csv') and Path(param).exists():
+        if param.endswith(FILETYPE_CSV) and Path(param).exists():
             self.csv_path = param
             return True
         else:
@@ -149,4 +169,6 @@ class MainWindow(Ui_MainWindow):
             WORK_DAYS[4]: self.cb_vorlage_freitag.isChecked()
         }
 
-
+    def on_save_but_pressed(self):
+        self.update_config()
+        create_success_dialog(SCC_STG_LO)

@@ -21,3 +21,4 @@ if __name__ == "__main__":
     sys.exit(qt_app.exec())
 
 
+#pyinstaller.exe --onefile --windowed --clean --name SF-ANG --icon "res/pictures/icon.ico" --add-data "res/pictures/icon_16x.png;." --add-data "res/pictures/icon_32x.png;." --add-data "res/template/month.docx;." .\main.py

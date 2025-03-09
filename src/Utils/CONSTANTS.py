@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from docx import Document
 from PySide6.QtCore import QDate
@@ -60,6 +61,7 @@ ERR_CSV_NV = 'Die CSV ist nicht vollständig! Es fehlen Folgende Zeilen: {}. Üb
 
 # Success Nachrichten
 SCC_CSV_LO = "File erfolgreich geladen!"
+SCC_STG_LO = "Einstellungen gespeichert"
 
 # WORD Spezifisches
 WORD_NAME = 'Ausbildungsnachweis_{}.docx'
@@ -83,10 +85,13 @@ APPDATA_PATH = Path(os.getenv('APPDATA', ''))
 PTH_APP_DATA = Path(str(APPDATA_PATH / APP_NAME))
 PTH_OUT = Path.home() / 'Documents'
 PTH_TMP = Path.cwd() / 'res/template/month.docx'
+PTH_TMP_EXE = 'month.docx'
 PTH_CNFG = PTH_APP_DATA / 'config.ini'
 PTH_LOG = Path(str(APPDATA_PATH / APP_NAME / 'logs'))
 PTH_ICN_S = Path.cwd() / 'res/pictures/icon_16x.png'
 PTH_ICN_L = Path.cwd() / 'res/pictures/icon_32x.png'
+PTH_ICN_S_EXE = 'icon_16x.png'
+PTH_ICN_L_EXE = 'icon_32x.png'
 
 # Links
 LNK_TP = 'https://portal.nagarro-es.com/ess/shells/abap/FioriLaunchpad.html#TIMEREPORTING_NAG-create?OnBehalfOf'
