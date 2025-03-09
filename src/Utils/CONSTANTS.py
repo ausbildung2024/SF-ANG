@@ -1,6 +1,7 @@
 from pathlib import Path
 from docx import Document
 from PySide6.QtCore import QDate
+from PySide6 import QtGui, QtCore
 
 import configparser
 import pandas as pd
@@ -84,8 +85,8 @@ PTH_OUT = Path.home() / 'Documents'
 PTH_TMP = Path.cwd() / 'res/template/month.docx'
 PTH_CNFG = PTH_APP_DATA / 'config.ini'
 PTH_LOG = Path(str(APPDATA_PATH / APP_NAME / 'logs'))
-PTH_ICN_L = Path.cwd() / 'res/pictures/icon_16x.png'
-PTH_ICN_S = Path.cwd() / 'res/pictures/icon_32x.png'
+PTH_ICN_S = Path.cwd() / 'res/pictures/icon_16x.png'
+PTH_ICN_L = Path.cwd() / 'res/pictures/icon_32x.png'
 
 # Links
 LNK_TP = 'https://portal.nagarro-es.com/ess/shells/abap/FioriLaunchpad.html#TIMEREPORTING_NAG-create?OnBehalfOf'

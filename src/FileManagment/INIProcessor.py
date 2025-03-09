@@ -99,9 +99,9 @@ class IniLoader:
     """
     def get_pers_year(self):
         if self.config.has_option(SECTION_PERS, SETT_YEAR):
-            return self.config.get(SECTION_PERS, SETT_YEAR)
+            return int(self.config.get(SECTION_PERS, SETT_YEAR))
         else:
-            return DSET_YEAR
+            return int(DSET_YEAR)
 
     """
     Setzt den Namen des Azubis im Personal Abschnitt

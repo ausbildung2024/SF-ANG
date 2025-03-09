@@ -17,15 +17,22 @@ class MainWindow(Ui_MainWindow):
 
     def setupUi(self, MainWindow):
         super().setupUi(MainWindow)
-
+        
+        #Verbinden des Buttons mit den Funktionen
         self.gen_but.pressed.connect(lambda: self.on_gen_but_pressed())
         self.gen_but_tmp.pressed.connect(lambda: self.on_gen_but_tmp_pressed())
         self.successfactor_but.pressed.connect(lambda: self.on_sf_but_pressed())
         self.appdata_but.pressed.connect(lambda: self.on_appdata_but_pressed())
         self.config_but.pressed.connect(lambda: self.on_config_but_pressed())
 
-        self.set_name(self.ini.get_pers_name())
+        
+        #Vorlage Datum
         self.set_temp_date(year=datetime.now().year,month=datetime.now().month)
+
+        #Laden aus der INI
+        self.set_name(self.ini.get_pers_name())
+
+        self.set_lehrjahr(self.ini.get_pers_year())
 
         self.cb_vorlage_montag.setChecked(self.ini.get_tmp_day(0))
         self.cb_vorlage_dienstag.setChecked(self.ini.get_tmp_day(1))
@@ -33,11 +40,19 @@ class MainWindow(Ui_MainWindow):
         self.cb_vorlage_donnerstag.setChecked(self.ini.get_tmp_day(3))
         self.cb_vorlage_freitag.setChecked(self.ini.get_tmp_day(4))
 
+        #Weiter Window Funktionen
         self.csv_drop.set_main_window(self)
+        self.set_window_icon(MainWindow)
 
     def set_name(self,text):
         self.name.setText(text)
         self.name.repaint()
+
+    def set_window_icon(self,MainWindow):
+        app_icon = QtGui.QIcon()
+        app_icon.addFile(PTH_ICN_S.as_posix(), QtCore.QSize(16, 16))
+        app_icon.addFile(PTH_ICN_L.as_posix(), QtCore.QSize(32, 32))
+        MainWindow.setWindowIcon(app_icon)
 
     def get_name(self):
         return self.name.text()
