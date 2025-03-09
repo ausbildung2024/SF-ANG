@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'sf_angJaRvOx.ui'
+## Form generated from reading UI file 'sf_angsQEGCJ.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.2
 ##
@@ -20,14 +20,14 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateEdit,
     QMainWindow, QPushButton, QSizePolicy, QStatusBar,
     QTabWidget, QVBoxLayout, QWidget)
 
-from src.GUI.labelcsvdrag import LabelCsvDrag
+from src.GUI.LabelCsvDrag import LabelCsvDrag
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(539, 260)
+        MainWindow.resize(586, 260)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -64,6 +64,11 @@ class Ui_MainWindow(object):
         self.appdata_but.setObjectName(u"appdata_but")
 
         self.gridLayout_3.addWidget(self.appdata_but, 1, 0, 1, 1)
+
+        self.save_but = QPushButton(self.quick_box)
+        self.save_but.setObjectName(u"save_but")
+
+        self.gridLayout_3.addWidget(self.save_but, 1, 1, 1, 1)
 
 
         self.gridLayout_5.addWidget(self.quick_box, 1, 0, 1, 1)
@@ -143,15 +148,15 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.cb_vorlage_mittwoch)
 
-        self.cb_vorlage_donnerstag = QCheckBox(self.tmp_set_box)
-        self.cb_vorlage_donnerstag.setObjectName(u"cb_vorlage_donnerstag")
-
-        self.verticalLayout.addWidget(self.cb_vorlage_donnerstag)
-
         self.cb_vorlage_freitag = QCheckBox(self.tmp_set_box)
         self.cb_vorlage_freitag.setObjectName(u"cb_vorlage_freitag")
 
         self.verticalLayout.addWidget(self.cb_vorlage_freitag)
+
+        self.cb_vorlage_Freitag = QCheckBox(self.tmp_set_box)
+        self.cb_vorlage_Freitag.setObjectName(u"cb_vorlage_Freitag")
+
+        self.verticalLayout.addWidget(self.cb_vorlage_Freitag)
 
 
         self.gridLayout_2.addLayout(self.verticalLayout, 1, 1, 1, 1)
@@ -216,6 +221,7 @@ class Ui_MainWindow(object):
         self.appdata_but.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>\u00d6ffnet den Appdata Ordner des Programms</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.appdata_but.setText(QCoreApplication.translate("MainWindow", u"AppData", None))
+        self.save_but.setText(QCoreApplication.translate("MainWindow", u"Einst. Speichern", None))
         self.gen_set_box.setTitle(QCoreApplication.translate("MainWindow", u"Allgemeine Einstellungen", None))
         self.lbl_lehrjahr.setText(QCoreApplication.translate("MainWindow", u"Lehrjahr", None))
         self.lehrjahr.setItemText(0, QCoreApplication.translate("MainWindow", u"1 LJ", None))
@@ -245,8 +251,8 @@ class Ui_MainWindow(object):
         self.cb_vorlage_montag.setText(QCoreApplication.translate("MainWindow", u"Montag", None))
         self.cb_vorlage_dienstag.setText(QCoreApplication.translate("MainWindow", u"Dienstag", None))
         self.cb_vorlage_mittwoch.setText(QCoreApplication.translate("MainWindow", u"Mittwoch", None))
-        self.cb_vorlage_donnerstag.setText(QCoreApplication.translate("MainWindow", u"Donnerstag", None))
-        self.cb_vorlage_freitag.setText(QCoreApplication.translate("MainWindow", u"Freitag", None))
+        self.cb_vorlage_freitag.setText(QCoreApplication.translate("MainWindow", u"Donnerstag", None))
+        self.cb_vorlage_Freitag.setText(QCoreApplication.translate("MainWindow", u"Freitag", None))
         self.lbl_tmp_date.setText(QCoreApplication.translate("MainWindow", u"Monat/Jahr", None))
 #if QT_CONFIG(tooltip)
         self.tmp_date.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Auswahl des Monats und des Jahres f\u00fcr das die Vorlage erstellt werden soll</p></body></html>", None))
