@@ -247,14 +247,14 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="cb_vorlage_freitag">
+          <widget class="QCheckBox" name="cb_vorlage_donnerstag">
            <property name="text">
             <string>Donnerstag</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="cb_vorlage_Freitag">
+          <widget class="QCheckBox" name="cb_vorlage_freitag">
            <property name="text">
             <string>Freitag</string>
            </property>

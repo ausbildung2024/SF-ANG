@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'sf_angsQEGCJ.ui'
+## Form generated from reading UI file 'sf_angsJOAnf.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.2
 ##
@@ -148,15 +148,15 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.cb_vorlage_mittwoch)
 
+        self.cb_vorlage_donnerstag = QCheckBox(self.tmp_set_box)
+        self.cb_vorlage_donnerstag.setObjectName(u"cb_vorlage_donnerstag")
+
+        self.verticalLayout.addWidget(self.cb_vorlage_donnerstag)
+
         self.cb_vorlage_freitag = QCheckBox(self.tmp_set_box)
         self.cb_vorlage_freitag.setObjectName(u"cb_vorlage_freitag")
 
         self.verticalLayout.addWidget(self.cb_vorlage_freitag)
-
-        self.cb_vorlage_Freitag = QCheckBox(self.tmp_set_box)
-        self.cb_vorlage_Freitag.setObjectName(u"cb_vorlage_Freitag")
-
-        self.verticalLayout.addWidget(self.cb_vorlage_Freitag)
 
 
         self.gridLayout_2.addLayout(self.verticalLayout, 1, 1, 1, 1)
@@ -251,8 +251,8 @@ class Ui_MainWindow(object):
         self.cb_vorlage_montag.setText(QCoreApplication.translate("MainWindow", u"Montag", None))
         self.cb_vorlage_dienstag.setText(QCoreApplication.translate("MainWindow", u"Dienstag", None))
         self.cb_vorlage_mittwoch.setText(QCoreApplication.translate("MainWindow", u"Mittwoch", None))
-        self.cb_vorlage_freitag.setText(QCoreApplication.translate("MainWindow", u"Donnerstag", None))
-        self.cb_vorlage_Freitag.setText(QCoreApplication.translate("MainWindow", u"Freitag", None))
+        self.cb_vorlage_donnerstag.setText(QCoreApplication.translate("MainWindow", u"Donnerstag", None))
+        self.cb_vorlage_freitag.setText(QCoreApplication.translate("MainWindow", u"Freitag", None))
         self.lbl_tmp_date.setText(QCoreApplication.translate("MainWindow", u"Monat/Jahr", None))
 #if QT_CONFIG(tooltip)
         self.tmp_date.setToolTip(QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Auswahl des Monats und des Jahres f\u00fcr das die Vorlage erstellt werden soll</p></body></html>", None))
