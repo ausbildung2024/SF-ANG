@@ -1,5 +1,8 @@
 from PySide6 import QtWidgets
 
+MSG_SUCCESS = "Erfolg!"
+MSG_ERROR = "Ein Fehler ist aufgetreten!"
+
 """
 Erstellt einen Dialog mit Titel und Nachricht
 
@@ -24,8 +27,7 @@ Attribute:
     err_msg: Die anzuzeigende Fehlernachricht
 """
 def create_error_dialog(err_msg):
-    create_dialog(err_msg,"Ein Fehler ist aufgetreten!")
-<r
+    create_dialog(err_msg,MSG_ERROR)
 """
 Erstellt einen Erfolg Dialog
 
@@ -33,4 +35,4 @@ Attribute:
     scc_msg: Die anzuzeigende Erfolgsnachricht
 """
 def create_success_dialog(scc_msg):
-    create_dialog(scc_msg,"Erfolg!")
+    create_dialog(scc_msg,MSG_SUCCESS)

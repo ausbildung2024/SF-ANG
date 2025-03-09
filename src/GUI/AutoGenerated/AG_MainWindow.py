@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateEdit,
     QMainWindow, QPushButton, QSizePolicy, QStatusBar,
     QTabWidget, QVBoxLayout, QWidget)
 
-from src.GUI.label_csv_drag import label_csv_drag
+from src.GUI.labelcsvdrag import LabelCsvDrag
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -102,7 +102,7 @@ class Ui_MainWindow(object):
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.gridLayout_4 = QGridLayout(self.groupBox_2)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.csv_drop = label_csv_drag(self.groupBox_2)
+        self.csv_drop = LabelCsvDrag(self.groupBox_2)
         self.csv_drop.setObjectName(u"csv_drop")
         self.csv_drop.setEnabled(True)
         self.csv_drop.setMouseTracking(False)

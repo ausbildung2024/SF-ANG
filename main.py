@@ -3,20 +3,18 @@ import sys
 
 from PySide6.QtWidgets import QApplication, QMainWindow
 from src.GUI.MainWindow import MainWindow
-from src.Settings.ConfigManager import ConfigManager
+from src.Utils.CONSTANTS import APP_ID
 
+"""
+Der Einstiegspunkt der Anwendung. Hier wird die PyQT-GUI gestartet und die Hauptanwendung geladen.
+"""
 if __name__ == "__main__":
-    """
-    Der Einstiegspunkt der Anwendung. Hier wird die PyQT-GUI gestartet und die Hauptanwendung geladen.
-    """
 
-    CM = ConfigManager()
-
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(CM.get_app_id()) #Setzt die App ID von dem Prozess
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_ID) #Setzt die App ID von dem Prozess
 
     qt_app = QApplication(sys.argv)
     window = QMainWindow()
-    ui = MainWindow(CM)
+    ui = MainWindow()
     ui.setupUi(window)
     window.show()
 
